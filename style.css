@@ -76,7 +76,7 @@ li.news-item a {
     font-weight: bold;
     color: #333;
     text-decoration: none;
-    display: block;
+    display: inline; /* Changed to inline to allow badge next to it */
     margin-bottom: 0.5rem;
 }
 
@@ -84,7 +84,23 @@ li.news-item a:hover {
     color: #0000ff; /* Blue on hover */
 }
 
-span.news-source {
+/* NEW Badge Styling */
+.new-badge {
+    display: inline-block;
+    background-color: #28a745; /* Green for NEW */
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    margin-left: 10px;
+    border-radius: 4px;
+    vertical-align: top;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+/* Source and Date info */
+span.news-meta {
     font-size: 0.85rem;
     color: #666;
     display: block;
