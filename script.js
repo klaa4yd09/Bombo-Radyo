@@ -3,6 +3,8 @@ const RSS_URLS = [
   "https://news.abs-cbn.com/feed",
   "https://www.rappler.com/rss",
   "https://www.inquirer.net/fullfeed",
+  "https://www.rappler.com/sports/feed/",
+  "https://www.rappler.com/entertainment/feed/",
 ];
 
 const newsContainer = document.getElementById("news-container");
