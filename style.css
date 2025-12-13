@@ -3,32 +3,33 @@ body {
     background: #f7f7f7;
     margin: 0;
     padding: 0;
-    /* Responsive Background Image settings */
-    background-image: url("bombo.jpg");
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-attachment: fixed; /* Fixes background position during scroll */
 }
 
 header {
-    background: #ff0000;
+    background: #ff0000; /* Red header for Philippine colors */
     color: white;
     padding: 1rem;
     text-align: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+header p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
 main {
     max-width: 800px;
     margin: 2rem auto;
-    padding: 0 1rem; /* Padding for desktop/tablet margins */
+    padding: 0 1rem;
 }
 
 /* Category Selector Styling */
 .category-selector {
     display: flex;
-    flex-wrap: wrap; /* Allows buttons to wrap on small screens */
-    gap: 8px; /* Spacing between buttons */
+    flex-wrap: wrap;
+    gap: 8px;
     margin-bottom: 20px;
     justify-content: center;
 }
@@ -40,12 +41,12 @@ main {
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.2s, color 0.2s;
-    flex-grow: 1; /* Allows buttons to fill available space */
-    min-width: 100px; /* Ensures buttons aren't too small */
+    flex: 1 1 120px; /* grow, shrink, basis */
+    font-weight: 600;
 }
 
-.category-selector button:hover,
-.category-selector button.active {
+.category-selector button.active,
+.category-selector button:hover {
     background-color: #ff0000;
     color: white;
     border-color: #ff0000;
@@ -63,7 +64,7 @@ li.news-item {
     margin-bottom: 1rem;
     padding: 1rem;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
 }
 
@@ -80,12 +81,16 @@ li.news-item a {
 }
 
 li.news-item a:hover {
-    color: #ff0000;
+    color: #0000ff; /* Blue on hover */
 }
 
 span.news-source {
     font-size: 0.85rem;
     color: #666;
+    display: block;
+    margin-top: 5px;
+    border-top: 1px solid #eee;
+    padding-top: 5px;
 }
 
 .loading {
@@ -94,36 +99,25 @@ span.news-source {
     padding: 20px;
 }
 
-/* ------------------------------------------- */
-/* MOBILE RESPONSIVENESS (Max-width 600px)     */
-/* ------------------------------------------- */
+/* Mobile Responsiveness */
 @media (max-width: 600px) {
     main {
         margin: 1rem auto;
-        padding: 0 0.5rem; /* Reduce padding on narrow screens */
+        padding: 0 0.5rem;
     }
 
     header h1 {
         font-size: 1.5rem;
     }
 
-    /* Force buttons into a single column on the smallest screens if necessary */
     .category-selector {
         flex-direction: column;
         gap: 5px;
     }
-    .category-selector button {
-        flex-grow: 1;
-        min-width: unset;
-        width: 100%;
-    }
-    
-    li.news-item {
-        padding: 0.75rem;
-        margin-bottom: 0.75rem;
-    }
 
-    li.news-item a {
-        font-size: 1em;
+    .category-selector button {
+        flex: 1 1 auto;
+        width: 100%;
+        min-width: unset;
     }
 }
