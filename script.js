@@ -4,7 +4,14 @@ const ALL_FEEDS = {
   // National / General
   "National News": [
     { url: "https://news.abs-cbn.com/feed", source: "ABS-CBN Main" },
-    { url: "https://www.inquirer.net/fullfeed", source: "Inquirer Main" },
+    {
+      url: "https://www.bomboradyo.com/category/top-stories/feed/",
+      source: "Bombo Radyo",
+    },
+    {
+      url: "https://www.brigadanews.ph/category/national/feed/",
+      source: "Brigada News",
+    },
   ],
   // General Philippines
   General: [{ url: "https://www.rappler.com/rss", source: "Rappler Main" }],
