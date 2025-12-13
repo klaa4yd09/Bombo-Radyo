@@ -1,35 +1,81 @@
 // --- Configuration ---
 // Map the feed URL to a user-friendly Category and Source Name
 const ALL_FEEDS = {
-  // National / General
+  // 1. National / General
   "National News": [
-    { url: "https://rmn.ph/feed/", source: "RMN News" },
+    // Core National Sources
+    { url: "https://news.abs-cbn.com/feed", source: "ABS-CBN Main" },
+    { url: "https://www.inquirer.net/fullfeed", source: "Inquirer Main" },
+
+    // Radio Network National Feeds
     {
-      url: "https://www.bomboradyo.com/category/top-stories/feed/",
-      source: "Bombo Radyo",
+      url: "https://www.bomboradyo.com/category/national-news/feed/",
+      source: "Bombo Radyo Nation",
     },
     {
       url: "https://www.brigadanews.ph/category/national/feed/",
-      source: "Brigada News",
+      source: "Brigada Nation",
+    },
+    { url: "https://rmn.ph/category/national/feed/", source: "RMN Nation" },
+  ],
+
+  // 2. Specialized Categories
+  Sports: [
+    // Dedicated Sports Feeds
+    {
+      url: "https://www.abs-cbn.com/sports/rss/latest-news",
+      source: "ABS-CBN Sports",
+    },
+    { url: "https://www.rappler.com/sports/feed/", source: "Rappler Sports" },
+    {
+      url: "https://www.bomboradyo.com/category/sports/feed/",
+      source: "Bombo Radyo Sports",
     },
   ],
-  // General Philippines
-  General: [{ url: "https://www.rappler.com/rss", source: "Rappler Main" }],
-  // Specialized Categories
-  Sports: [
-    { url: "https://www.rappler.com/sports/feed/", source: "Rappler Sports" },
-  ],
+
   Showbiz: [
+    // Dedicated Entertainment Feeds
+    {
+      url: "https://www.abs-cbn.com/entertainment/rss/latest-news",
+      source: "ABS-CBN Showbiz",
+    },
     {
       url: "https://www.rappler.com/entertainment/feed/",
       source: "Rappler Showbiz",
     },
+    {
+      url: "https://www.brigadanews.ph/category/showbiz/feed/",
+      source: "Brigada Showbiz",
+    },
+    { url: "https://rmn.ph/category/showbiz/feed/", source: "RMN Showbiz" },
+
+    // PEP.PH FEED (FIXED URL)
+    { url: "https://www.pep.ph/feed/", source: "PEP.ph" },
   ],
-  // International
+
+  // 3. General / Local (Mix of Main Feeds and Local Focus)
+  "General / Local": [
+    { url: "https://www.rappler.com/rss", source: "Rappler Main" },
+    {
+      url: "https://www.brigadanews.ph/category/local-news/feed/",
+      source: "Brigada Local",
+    },
+    { url: "https://rmn.ph/feed/", source: "RMN Main" },
+    {
+      url: "https://rmn.ph/category/police-report/feed/",
+      source: "RMN Police Report",
+    },
+  ],
+
+  // 4. International
   International: [
     {
       url: "http://rss.cnn.com/rss/cnn_topstories.rss",
       source: "CNN Top Stories",
+    },
+    {
+      url: "https://www.bomboradyo.com/category/international/feed/",
+      source: "Bombo Radyo World",
     },
   ],
 };
@@ -119,4 +165,4 @@ createCategoryButtons();
 fetchNews();
 
 // Auto-refresh every 30 minutes
-setInterval(fetchNews, 30 * 60 * 1000);
+setInterval(fetchNews, 20 * 60 * 1000);
