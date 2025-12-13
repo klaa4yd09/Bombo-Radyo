@@ -3,7 +3,7 @@
 const ALL_FEEDS = {
   // National / General
   "National News": [
-    { url: "https://news.abs-cbn.com/feed", source: "ABS-CBN Main" },
+    { url: "https://rmn.ph/feed/", source: "RMN News" },
     {
       url: "https://www.bomboradyo.com/category/top-stories/feed/",
       source: "Bombo Radyo",
