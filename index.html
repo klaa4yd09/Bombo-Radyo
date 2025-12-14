@@ -3,22 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bombo Radyo Malaybalay</title>
+    <title>Bombo Radyo News Aggregator</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="icon" href="profile.jpg" />
   </head>
   <body>
     <header>
-      <h1>Bombo Radyo Malaybalay</h1>
-      <p>Latest Philippine News Headlines from Multiple Sources</p>
+      <div class="header-content">
+        <h1>
+          <img src="profile.jpg" alt="Bombo Radyo Logo" class="header-logo" />
+          Bombo Radyo
+        </h1>
+        <p>
+          A consolidated feed of the latest headlines from top Philippine and
+          global sources.
+        </p>
+        <div class="controls-bar">
+          <button id="refresh-button" title="Manually Refresh News">
+            <span class="icon">🔄</span> Refresh
+          </button>
+          <span id="status-message" class="status-message">Ready</span>
+        </div>
+      </div>
     </header>
 
     <main>
-      <div class="category-selector" id="category-buttons"></div>
+      <div id="category-buttons" class="category-selector"></div>
 
-      <ul id="news-container">
-        <li class="loading">Loading news...</li>
-      </ul>
+      <ul id="news-container"></ul>
     </main>
 
     <script src="script.js"></script>
