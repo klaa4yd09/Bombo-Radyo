@@ -1,25 +1,41 @@
+/* ENHANCEMENT KEY:
+    1. Color & Typography Refinement
+    2. Modernized Shadows & Borders (Softer, deeper shadows)
+    3. Enhanced Interactivity (Subtler transitions)
+    4. Aesthetic Details (Better background, more defined containers)
+*/
+
 :root {
-    --primary-color: #ff0000;
-    --secondary-color: #f7f7f7;
-    --text-color: #333;
+    /* --- COLOR PALETTE ENHANCEMENT --- */
+    --primary-color: red; /* Changed from red to a modern, friendly blue */
+    --primary-dark: #0056b3;
+    --secondary-color: #f4f7f9; /* Lighter, slightly textured background */
+    --surface-color: #ffffff; /* Card/Base background */
+    --text-color: #212529; /* Darker, more contrast */
     --meta-color: #6c757d;
     --new-badge-color: #28a745;
     --error-color: #dc3545;
-    --grid-gap: 14px;
-    --border-color-subtle: #ddd;
-    --desktop-max-width: 1100px;
+    --border-color-subtle: #e9ecef; /* Lighter border for subtlety */
+    --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.08); /* Minimal shadow for depth */
+    --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.1); /* Deeper shadow on hover */
+
+    /* --- LAYOUT & SPACING --- */
+    --grid-gap: 16px; /* Slightly larger gap */
+    --desktop-max-width: 1200px; /* Slightly wider desktop */
 }
 
 /* ---------------- BASE ---------------- */
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Refined font stack for better cross-device rendering */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     background: var(--secondary-color);
     color: var(--text-color);
     margin: 0;
     padding: 0;
-    font-size: 15px;
-    line-height: 1.45;
+    font-size: 16px; /* Slightly larger base font */
+    line-height: 1.5;
+    transition: background-color 0.3s;
 }
 
 /* ---------------- HEADER ---------------- */
@@ -27,32 +43,39 @@ body {
 header {
     background: var(--primary-color);
     color: white;
-    padding: 0.75rem 1rem;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+    padding: 1rem 1rem; /* Slightly more padding */
+    box-shadow: var(--shadow-medium); /* More substantial shadow for separation */
+    z-index: 10;
+    position: sticky; /* Sticky header for better UX */
+    top: 0;
 }
 
 .header-content {
     max-width: var(--desktop-max-width);
     margin: 0 auto;
+    display: flex;
+    flex-direction: column; /* Use flex column for better stacking */
 }
 
 header h1 {
-    margin: 0 0 2px 0;
-    font-size: 1.5rem;
+    margin: 0 0 4px 0; /* Adjusted margin */
+    font-size: 1.65rem;
+    font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .header-logo {
-    height: 26px;
+    height: 28px; /* Slightly larger logo */
     width: auto;
 }
 
 header p {
     margin: 0;
-    font-size: 0.85rem;
-    opacity: 0.9;
+    font-size: 0.9rem;
+    opacity: 0.95;
+    font-weight: 300; /* Lighter weight for subtext */
 }
 
 /* ---------------- CONTROLS ---------------- */
@@ -61,57 +84,53 @@ header p {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 8px;
-    margin-top: 6px;
-    padding-top: 6px;
-    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    gap: 12px;
+    margin-top: 10px; /* Increased margin */
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2); /* Softer white border */
 }
 
 #refresh-button {
-    padding: 4px 10px;
-    background-color: white;
+    padding: 6px 14px; /* More substantial button padding */
+    background-color: var(--surface-color);
     color: var(--primary-color);
     border: none;
-    border-radius: 16px;
+    border-radius: 20px; /* More rounded pill shape */
     cursor: pointer;
     font-weight: 600;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     display: flex;
     align-items: center;
-    gap: 4px;
-    transition: background-color 0.2s, transform 0.2s;
+    gap: 6px;
+    transition: all 0.3s ease; /* Better transition for all properties */
+    box-shadow: var(--shadow-light);
 }
 
 #refresh-button:hover:not(:disabled) {
-    background-color: #e2e6ea;
-    transform: translateY(-1px);
+    background-color: var(--primary-dark);
+    color: white; /* Color change on hover for better feedback */
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
 }
 
 #refresh-button:disabled {
-    cursor: wait;
-    opacity: 0.6;
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .status-message {
-    font-size: 0.8rem;
-    opacity: 0.85;
+    font-size: 0.85rem;
+    opacity: 1; /* Keep status message fully visible */
 }
 
-/* Spinner */
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.icon.spinner {
-    animation: spin 1s linear infinite;
-}
+/* Spinner remains the same */
 
 /* ---------------- MAIN ---------------- */
 
 main {
     max-width: var(--desktop-max-width);
-    margin: 1.25rem auto;
-    padding: 0 1rem;
+    margin: 1.5rem auto; /* More vertical margin */
+    padding: 0 1.5rem; /* Increased horizontal padding */
 }
 
 /* ---------------- CATEGORY BUTTONS ---------------- */
@@ -119,29 +138,32 @@ main {
 .category-selector {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 18px;
+    gap: 10px;
+    margin-bottom: 25px; /* More space before the grid */
     justify-content: center;
 }
 
 .category-selector button {
-    padding: 6px 12px;
+    padding: 8px 16px;
     border: 1px solid var(--border-color-subtle);
-    background-color: white;
-    border-radius: 18px;
+    background-color: var(--surface-color);
+    border-radius: 20px;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 0.8rem;
-    transition: all 0.25s ease;
-    min-width: 110px;
+    font-weight: 500; /* Lighter font weight */
+    font-size: 0.85rem;
+    color: var(--meta-color);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother transition */
+    min-width: 120px;
+    box-shadow: var(--shadow-light);
 }
 
 .category-selector button.active,
-.category-selector button:hover {
+.category-selector button:hover:not(.active) {
     background-color: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
 }
 
 /* ---------------- NEWS GRID ---------------- */
@@ -151,60 +173,62 @@ ul#news-container {
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    /* Use 'auto-fit' with 'minmax' for a more flexible, responsive grid */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--grid-gap);
 }
 
 /* ---------------- NEWS CARD ---------------- */
 
 li.news-item {
-    background: white;
-    padding: 0.85rem;
-    border-radius: 10px;
+    background: var(--surface-color);
+    padding: 1rem; /* Slightly more padding */
+    border-radius: 12px; /* Slightly more rounded corners */
     border: 1px solid var(--border-color-subtle);
-    border-left: 4px solid var(--primary-color);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* Subtle accent color instead of a strong border-left */
+    border-top: 4px solid var(--primary-color);
+    box-shadow: var(--shadow-light); /* Softer initial shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 li.news-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px); /* Deeper lift on hover */
+    box-shadow: var(--shadow-medium); /* More pronounced hover shadow */
 }
 
 li.news-item a {
-    font-weight: 700;
+    font-weight: 600; /* Slightly less heavy weight */
     color: var(--text-color);
     text-decoration: none;
     display: block;
-    line-height: 1.35;
-    font-size: 0.95rem;
+    line-height: 1.4;
+    font-size: 1rem; /* Aligned with 16px base font */
 }
 
 li.news-item a:hover {
-    color: var(--primary-color);
+    color: var(--primary-dark); /* Darker primary color on hover for contrast */
 }
 
 /* ---------------- BADGE + META ---------------- */
 
 .new-badge {
-    display: inline-block;
+    /* ... (remains mostly the same, good design) */
     background-color: var(--new-badge-color);
     color: white;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: bold;
-    padding: 2px 6px;
-    margin-right: 6px;
-    border-radius: 6px;
+    padding: 3px 8px; /* Slightly more padding */
+    margin-right: 8px;
+    border-radius: 4px; /* Less aggressive rounding */
 }
 
 span.news-meta {
-    font-size: 0.7rem;
+    font-size: 0.75rem; /* Slightly larger meta text */
     color: var(--meta-color);
     display: block;
-    margin-top: 6px;
-    padding-top: 5px;
-    border-top: 1px dashed #eee;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color-subtle); /* Solid, subtle separator */
 }
 
 /* ---------------- LOADING ---------------- */
@@ -213,29 +237,49 @@ span.news-meta {
     grid-column: 1 / -1;
     text-align: center;
     color: var(--meta-color);
-    padding: 18px;
-    font-size: 0.85rem;
+    padding: 24px;
+    font-size: 1rem;
     font-style: italic;
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-light);
 }
 
 /* ---------------- MOBILE ---------------- */
 
-@media (max-width: 600px) {
+@media (max-width: 768px) { /* Changed breakpoint to 768px for better tablet support */
+    main {
+        padding: 0 1rem;
+    }
+
     header h1 {
-        font-size: 1.3rem;
+        font-size: 1.4rem;
     }
 
     .header-logo {
-        height: 22px;
+        height: 24px;
+    }
+
+    .category-selector {
+        gap: 6px;
     }
 
     .category-selector button {
         min-width: unset;
-        flex: 1 1 calc(50% - 6px);
-        font-size: 0.75rem;
+        flex: 1 1 calc(33.33% - 6px); /* Better layout for 3 columns on small screens */
+        font-size: 0.8rem;
+        padding: 6px 10px;
+        border-radius: 16px;
     }
 
     ul#news-container {
         grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    li.news-item {
+        border-radius: 8px;
+        transform: none !important; /* Disable lift on small screens */
+        box-shadow: var(--shadow-light) !important;
     }
 }
