@@ -3,114 +3,78 @@ const ALL_FEEDS = {
   "National News": [
     { url: "https://news.abs-cbn.com/feed", source: "ABS-CBN News" },
     { url: "https://www.inquirer.net/fullfeed", source: "Inquirer" },
-    {
-      url: "https://www.gmanetwork.com/news/rss/news/",
-      source: "GMA News Online",
-    },
-    {
-      url: "https://www.philstar.com/rss/headlines",
-      source: "The Philippine Star",
-    },
+    { url: "https://www.gmanetwork.com/news/rss/news/", source: "GMA News Online" },
+    { url: "https://www.philstar.com/rss/headlines", source: "Philippine Star" },
     { url: "https://mb.com.ph/feed/", source: "Manila Bulletin" },
-    {
-      url: "https://www.manilatimes.net/news/feed",
-      source: "The Manila Times",
-    },
-    {
-      url: "https://www.bomboradyo.com/category/national-news/feed/",
-      source: "Bombo Radyo Nation",
-    },
-    // The 'Bombo Radyo Balitang Espesyal' feed has been moved to its own category below
-    {
-      url: "https://www.brigadanews.ph/category/national/feed/",
-      source: "Brigada News",
-    },
+    { url: "https://www.manilatimes.net/news/feed", source: "Manila Times" },
+    { url: "https://www.bomboradyo.com/category/national-news/feed/", source: "Bombo Radyo Nation" },
+    { url: "https://www.brigadanews.ph/category/national/feed/", source: "Brigada News" },
     { url: "https://rmn.ph/feed/", source: "RMN Networks" },
     { url: "https://www.journalnews.com.ph/feed/", source: "People's Journal" },
+
+    // NEW
+    { url: "https://www.ptvnews.ph/feed/", source: "PTV News" },
+    { url: "https://www.untvweb.com/feed/", source: "UNTV News" },
+    { url: "https://www.gmanetwork.com/news/rss/regions/", source: "GMA Regional" }
   ],
+
   "Business/Economy": [
     { url: "https://www.philstar.com/rss/money", source: "Philstar Business" },
     { url: "https://businessmirror.com.ph/feed/", source: "BusinessMirror" },
-    {
-      url: "https://www.manilatimes.net/business/feed",
-      source: "Manila Times Business",
-    },
+    { url: "https://www.manilatimes.net/business/feed", source: "Manila Times Business" },
     { url: "https://www.gmanetwork.com/news/rss/money/", source: "GMA Money" },
-    {
-      url: "https://www.rappler.com/business/feed/",
-      source: "Rappler Business",
-    },
-    { url: "https://www.bworldonline.com/feed/", source: "BusinessWorld" },
+    { url: "https://www.rappler.com/business/feed/", source: "Rappler Business" },
+    { url: "https://www.bworldonline.com/feed/", source: "BusinessWorld" }
   ],
+
   Sports: [
-    {
-      url: "https://www.abs-cbn.com/sports/rss/latest-news",
-      source: "ABS-CBN Sports",
-    },
+    { url: "https://www.abs-cbn.com/sports/rss/latest-news", source: "ABS-CBN Sports" },
     { url: "https://www.rappler.com/sports/feed/", source: "Rappler Sports" },
-    {
-      url: "https://www.bomboradyo.com/category/sports/feed/",
-      source: "Bombo Radyo Sports",
-    },
+    { url: "https://www.bomboradyo.com/category/sports/feed/", source: "Bombo Radyo Sports" },
     { url: "https://www.philstar.com/rss/sports", source: "Philstar Sports" },
     { url: "https://www.spin.ph/feed", source: "SPIN.ph" },
-    { url: "https://tiebreakertimes.com.ph/feed", source: "Tiebreaker Times" },
+    { url: "https://tiebreakertimes.com.ph/feed", source: "Tiebreaker Times" }
   ],
+
   Showbiz: [
-    {
-      url: "https://www.abs-cbn.com/entertainment/rss/latest-news",
-      source: "ABS-CBN Entertainment",
-    },
-    {
-      url: "https://www.rappler.com/entertainment/feed/",
-      source: "Rappler Showbiz",
-    },
-    {
-      url: "https://www.brigadanews.ph/category/showbiz/feed/",
-      source: "Brigada Showbiz",
-    },
+    { url: "https://www.abs-cbn.com/entertainment/rss/latest-news", source: "ABS-CBN Entertainment" },
+    { url: "https://www.rappler.com/entertainment/feed/", source: "Rappler Showbiz" },
+    { url: "https://www.brigadanews.ph/category/showbiz/feed/", source: "Brigada Showbiz" },
     { url: "https://rmn.ph/category/showbiz/feed/", source: "RMN Showbiz" },
     { url: "https://www.pep.ph/feed/", source: "PEP.ph" },
-    { url: "https://www.pikapika.ph/feed", source: "Pikapika" },
+    { url: "https://www.pikapika.ph/feed", source: "Pikapika" }
   ],
-  // New Category
+
   "Balitang Espesyal": [
-    {
-      url: "https://www.bomboradyo.com/category/balitang-espesyal/feed/",
-      source: "Bombo Radyo Balitang Espesyal",
-    },
+    { url: "https://www.bomboradyo.com/category/balitang-espesyal/feed/", source: "Bombo Radyo Special Reports" }
   ],
+
   General: [
     { url: "https://www.rappler.com/rss", source: "Rappler Main" },
-    {
-      url: "https://www.brigadanews.ph/category/local-news/feed/",
-      source: "Brigada Local",
-    },
-    {
-      url: "https://rmn.ph/category/police-report/feed/",
-      source: "RMN Police Report",
-    },
+    { url: "https://www.brigadanews.ph/category/local-news/feed/", source: "Brigada Local" },
+    { url: "https://rmn.ph/category/police-report/feed/", source: "RMN Police Report" },
     { url: "https://www.sunstar.com.ph/rss/cebu", source: "SunStar Cebu" },
     { url: "https://www.sunstar.com.ph/rss/davao", source: "SunStar Davao" },
+
+    // NEW
+    { url: "https://www.rappler.com/technology/feed/", source: "Rappler Tech" }
   ],
+
   International: [
-    {
-      url: "https://feeds.bbci.co.uk/news/world/rss.xml",
-      source: "BBC World News",
-    },
-    {
-      url: "http://rss.cnn.com/rss/cnn_topstories.rss",
-      source: "CNN Top Stories",
-    },
+    { url: "https://feeds.bbci.co.uk/news/world/rss.xml", source: "BBC World News" },
+    { url: "http://rss.cnn.com/rss/cnn_topstories.rss", source: "CNN Top Stories" },
     { url: "http://rss.cnn.com/rss/cnn_world.rss", source: "CNN World" },
     { url: "https://www.aljazeera.com/xml/rss/all.xml", source: "Al Jazeera" },
     { url: "https://www.reutersagency.com/feed/", source: "Reuters" },
-    {
-      url: "https://www.bomboradyo.com/category/international/feed/",
-      source: "Bombo Radyo World",
-    },
+    { url: "https://www.bomboradyo.com/category/international/feed/", source: "Bombo Radyo World" },
     { url: "https://www.rappler.com/world/feed/", source: "Rappler World" },
-  ],
+
+    // NEW
+    { url: "https://apnews.com/apf-topnews?format=rss", source: "Associated Press" },
+    { url: "https://feeds.npr.org/1004/rss.xml", source: "NPR World" },
+    { url: "https://news.yahoo.com/rss/", source: "Yahoo News" },
+    { url: "https://www.philstar.com/rss/world", source: "Philstar World" }
+  ]
 };
 
 const newsContainer = document.getElementById("news-container");
@@ -121,30 +85,20 @@ const statusMessage = document.getElementById("status-message");
 let activeCategory = "National News";
 const BASE_API_URL = `https://api.rss2json.com/v1/api.json?rss_url=`;
 
-// Updates status bar and handles button icon animation
+// Status updater
 function updateStatus(message, isLoading = false) {
-  const formatted = message.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-  statusMessage.innerHTML = formatted;
-
+  statusMessage.innerHTML = message.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
   refreshButton.disabled = isLoading;
-  const icon = refreshButton.querySelector(".icon");
 
+  const icon = refreshButton.querySelector(".icon");
   if (icon) {
-    if (isLoading) {
-      icon.classList.add("spinner");
-      icon.innerHTML = "⏳";
-    } else {
-      icon.classList.remove("spinner");
-      icon.innerHTML = "🔄";
-    }
+    icon.innerHTML = isLoading ? "⏳" : "🔄";
+    icon.classList.toggle("spinner", isLoading);
   }
 }
 
 function isNewNews(pubDate) {
-  const publishedTime = new Date(pubDate).getTime();
-  const currentTime = new Date().getTime();
-  // News is considered "new" if published within the last 6 hours
-  return currentTime - publishedTime < 6 * 60 * 60 * 1000;
+  return Date.now() - new Date(pubDate).getTime() < 6 * 60 * 60 * 1000;
 }
 
 function createCategoryButtons() {
@@ -154,11 +108,9 @@ function createCategoryButtons() {
     btn.textContent = category;
     btn.className = category === activeCategory ? "active" : "";
     btn.onclick = () => {
-      if (activeCategory !== category) {
-        activeCategory = category;
-        createCategoryButtons(); // Refresh active state
-        fetchNews();
-      }
+      activeCategory = category;
+      createCategoryButtons();
+      fetchNews();
     };
     buttonContainer.appendChild(btn);
   });
@@ -166,82 +118,62 @@ function createCategoryButtons() {
 
 async function fetchNews(isManual = false) {
   updateStatus(`Fetching **${activeCategory}**...`, true);
-  newsContainer.innerHTML = '<li class="loading">⏳ Loading headlines...</li>';
+  newsContainer.innerHTML = `<li class="loading">⏳ Loading headlines...</li>`;
 
   const feeds = ALL_FEEDS[activeCategory] || [];
-  const promises = feeds.map((feed) =>
+
+  const promises = feeds.map(feed =>
     fetch(`${BASE_API_URL}${encodeURIComponent(feed.url)}`)
-      .then((res) => (res.ok ? res.json() : Promise.reject()))
-      .then((data) => {
-        if (data.status !== "ok") return [];
-        return data.items.slice(0, 5).map((item) => ({
-          ...item,
-          sourceTitle: feed.source,
-        }));
-      })
+      .then(res => res.ok ? res.json() : null)
+      .then(data =>
+        data && data.status === "ok"
+          ? data.items.slice(0, 5).map(item => ({ ...item, sourceTitle: feed.source }))
+          : []
+      )
       .catch(() => [])
   );
 
-  try {
-    const results = await Promise.all(promises);
-    const allItems = results
-      .flat()
-      .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+  const results = await Promise.all(promises);
+  const allItems = results.flat().sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
-    newsContainer.innerHTML = "";
+  newsContainer.innerHTML = "";
 
-    if (allItems.length === 0) {
-      newsContainer.innerHTML =
-        '<li class="loading">No news found right now.</li>';
-    } else {
-      allItems.forEach((item) => {
-        const li = document.createElement("li");
-        li.className = "news-item";
-        const date = new Date(item.pubDate).toLocaleString("en-US", {
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-
-        li.innerHTML = `
-          <div>
-            ${
-              isNewNews(item.pubDate)
-                ? '<span class="new-badge">NEW</span>'
-                : ""
-            }
-            <a href="${item.link}" target="_blank" rel="noopener noreferrer">${
-          item.title
-        }</a>
-          </div>
-          <span class="news-meta">
-            Source: <strong>${item.sourceTitle}</strong> | ${date}
-          </span>
-        `;
-        newsContainer.appendChild(li);
-      });
-    }
-
-    updateStatus(
-      isManual
-        ? `Refreshed **${allItems.length}** headlines.`
-        : `Showing **${activeCategory}**.`,
-      false
-    );
-  } catch (e) {
-    updateStatus("🚨 Error connecting to news feeds.", false);
+  if (!allItems.length) {
+    newsContainer.innerHTML = `<li class="loading">No news available.</li>`;
   }
+
+  allItems.forEach(item => {
+    const li = document.createElement("li");
+    li.className = "news-item";
+
+    const date = new Date(item.pubDate).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    li.innerHTML = `
+      <div>
+        ${isNewNews(item.pubDate) ? `<span class="new-badge">NEW</span>` : ""}
+        <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
+      </div>
+      <span class="news-meta">
+        Source: <strong>${item.sourceTitle}</strong> | ${date}
+      </span>
+    `;
+
+    newsContainer.appendChild(li);
+  });
+
+  updateStatus(
+    isManual ? `Refreshed **${allItems.length}** headlines.` : `Showing **${activeCategory}**.`,
+    false
+  );
 }
 
-// Attach event listener to the refresh button
-refreshButton.addEventListener("click", () => {
-  fetchNews(true);
-});
+refreshButton.addEventListener("click", () => fetchNews(true));
 
-// Initial Launch
 createCategoryButtons();
 fetchNews();
-
-// Auto-refresh every 20 minutes
 setInterval(() => fetchNews(false), 20 * 60 * 1000);
