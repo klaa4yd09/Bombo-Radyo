@@ -105,20 +105,27 @@ const ALL_FEEDS = {
     { url: "https://www.rappler.com/technology/feed/", source: "Rappler Tech" },
   ],
 
-  // *** START NEW CATEGORY ***
-  Local: [
-    {
-      url: "https://www.gmanetwork.com/news/rss/scitech/",
-      source: "GMA SciTech",
-    },
-    { url: "https://www.philstar.com/rss/scitech", source: "Phil Star" },
-    {
-      url: "https://mb.com.ph/technews/feed",
-      source: "Manila Bulletin Technews",
-    },
-    { url: "https://manilastandard.net/tech/feed", source: "SunStar Davao" },
-    { url: "https://noypigeeks.com/feed", source: "NoypiGeeks" },
-  ],
+  // *** START NEW CATEGORY: Social Links (Special Hardcoded List) ***
+  Local: {
+    isSocialMedia: true,
+    items: [
+      {
+        title: "RMN Malaybalay ",
+        link: "https://www.facebook.com/profile.php?id=100063929018518",
+        source: "Facebook",
+      },
+      {
+        title: "101.7 XFM Bukidnon",
+        link: "https://www.facebook.com/101.7XFMBUKIDNON2025",
+        source: "XFM Bukidnon",
+      },
+      {
+        title: "Juander Radyo Malaybalay 90.5 FM ",
+        link: "https://www.facebook.com/juanderradyomalaybalay",
+        source: "Juander Radio",
+      },
+    ],
+  },
   // *** END NEW CATEGORY ***
 
   International: [
@@ -173,6 +180,7 @@ function updateStatus(message, isLoading = false) {
   }
 }
 
+// NOTE: isNewNews is skipped for Social Links, so we just return false
 function isNewNews(pubDate) {
   return Date.now() - new Date(pubDate).getTime() < 6 * 60 * 60 * 1000;
 }
@@ -196,25 +204,40 @@ async function fetchNews(isManual = false) {
   updateStatus(`Fetching **${activeCategory}**...`, true);
   newsContainer.innerHTML = `<li class="loading">⏳ Loading headlines...</li>`;
 
-  const feeds = ALL_FEEDS[activeCategory] || [];
+  const categoryData = ALL_FEEDS[activeCategory];
+  let allItems = [];
 
-  const promises = feeds.map((feed) =>
-    fetch(`${BASE_API_URL}${encodeURIComponent(feed.url)}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) =>
-        data && data.status === "ok"
-          ? data.items
-              .slice(0, 5)
-              .map((item) => ({ ...item, sourceTitle: feed.source }))
-          : []
-      )
-      .catch(() => [])
-  );
+  // --- SOCIAL MEDIA/LINK HANDLER ---
+  if (categoryData && categoryData.isSocialMedia) {
+    allItems = categoryData.items.map((item) => ({
+      ...item,
+      title: item.title,
+      pubDate: null, // No date for social links
+      sourceTitle: item.source,
+    }));
+  }
+  // --- RSS FEED HANDLER ---
+  else {
+    const feeds = Array.isArray(categoryData) ? categoryData : [];
 
-  const results = await Promise.all(promises);
-  const allItems = results
-    .flat()
-    .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+    const promises = feeds.map((feed) =>
+      fetch(`${BASE_API_URL}${encodeURIComponent(feed.url)}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) =>
+          data && data.status === "ok"
+            ? data.items
+                .slice(0, 5)
+                .map((item) => ({ ...item, sourceTitle: feed.source }))
+            : []
+        )
+        .catch(() => [])
+    );
+
+    const results = await Promise.all(promises);
+    allItems = results
+      .flat()
+      .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+  }
 
   newsContainer.innerHTML = "";
 
@@ -226,20 +249,31 @@ async function fetchNews(isManual = false) {
     const li = document.createElement("li");
     li.className = "news-item";
 
-    const date = new Date(item.pubDate).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    // Determine the meta-data format based on whether it's an RSS feed or Social Link
+    let metaHTML;
+    if (categoryData && categoryData.isSocialMedia) {
+      metaHTML = `Source: <strong>${item.sourceTitle}</strong>`;
+    } else {
+      const date = new Date(item.pubDate).toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      metaHTML = `Source: <strong>${item.sourceTitle}</strong> | ${date}`;
+    }
 
     li.innerHTML = `
       <div>
-        ${isNewNews(item.pubDate) ? `<span class="new-badge">NEW</span>` : ""}
+        ${
+          item.pubDate && isNewNews(item.pubDate)
+            ? `<span class="new-badge">NEW</span>`
+            : ""
+        }
         <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
       </div>
       <span class="news-meta">
-        Source: <strong>${item.sourceTitle}</strong> | ${date}
+        ${metaHTML}
       </span>
     `;
 
@@ -258,4 +292,9 @@ refreshButton.addEventListener("click", () => fetchNews(true));
 
 createCategoryButtons();
 fetchNews();
-setInterval(() => fetchNews(false), 20 * 60 * 1000);
+// Only run interval for automatic fetch if the category is not Social Links
+setInterval(() => {
+  if (!ALL_FEEDS[activeCategory].isSocialMedia) {
+    fetchNews(false);
+  }
+}, 20 * 60 * 1000);
