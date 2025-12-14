@@ -5,7 +5,7 @@ const ALL_FEEDS = {
   "National News": [
     // Core National Sources
     { url: "https://news.abs-cbn.com/feed", source: "ABS-CBN Main" },
-    { url: "https://www.inquirer.net/fullfeed", source: "Inquirer Main" }, // ✅ NEW: Added GMA News Online (Top Stories Feed)
+    { url: "https://www.inquirer.net/fullfeed", source: "Inquirer Main" },
     {
       url: "https://www.gmanetwork.com/news/rss/news/",
       source: "GMA News Online",
@@ -17,10 +17,10 @@ const ALL_FEEDS = {
     {
       url: "https://www.brigadanews.ph/category/national/feed/",
       source: "Brigada Nation",
-    }, // ✅ FIX: Changed RMN category feed to the more general site feed
+    },
     { url: "https://rmn.ph/feed/", source: "RMN Nation (Main)" },
-  ], // 2. Sports
-
+  ],
+  // 2. Sports
   Sports: [
     {
       url: "https://www.abs-cbn.com/sports/rss/latest-news",
@@ -31,8 +31,8 @@ const ALL_FEEDS = {
       url: "https://www.bomboradyo.com/category/sports/feed/",
       source: "Bombo Radyo Sports",
     },
-  ], // 3. Showbiz
-
+  ],
+  // 3. Showbiz
   Showbiz: [
     {
       url: "https://www.abs-cbn.com/entertainment/rss/latest-news",
@@ -48,16 +48,15 @@ const ALL_FEEDS = {
     },
     { url: "https://rmn.ph/category/showbiz/feed/", source: "RMN Showbiz" },
     { url: "https://www.pep.ph/feed/", source: "PEP.ph" },
-  ], // 4. Politics (NEW CATEGORY)
-
+  ],
+  // 4. Politics
   Politics: [
-    // NEW: CNN Politics RSS Feed
     {
       url: "http://rss.cnn.com/rss/cnn_allpolitics.rss",
       source: "CNN Politics",
     },
-  ], // 5. General / Local
-
+  ],
+  // 5. General / Local
   "General / Local": [
     { url: "https://www.rappler.com/rss", source: "Rappler Main" },
     {
@@ -68,8 +67,8 @@ const ALL_FEEDS = {
       url: "https://rmn.ph/category/police-report/feed/",
       source: "RMN Police Report",
     },
-  ], // 6. International
-
+  ],
+  // 6. International
   International: [
     {
       url: "http://rss.cnn.com/rss/cnn_topstories.rss",
@@ -86,9 +85,26 @@ const ALL_FEEDS = {
 
 const newsContainer = document.getElementById("news-container");
 const buttonContainer = document.getElementById("category-buttons");
-let activeCategory = "National News"; // Default category
+const refreshButton = document.getElementById("refresh-button");
+const statusMessage = document.getElementById("status-message");
 
+let activeCategory = "National News"; // Default category
 const BASE_API_URL = `https://api.rss2json.com/v1/api.json?rss_url=`;
+
+/**
+ * Updates the status message in the header.
+ * @param {string} message The message to display.
+ * @param {boolean} [isLoading=false] If true, disables the refresh button and adds a spinner.
+ */
+function updateStatus(message, isLoading = false) {
+  statusMessage.innerHTML = message;
+  refreshButton.disabled = isLoading;
+  const iconSpan = refreshButton.querySelector(".icon");
+  if (iconSpan) {
+    iconSpan.innerHTML = isLoading ? "⏳" : "🔄";
+    iconSpan.classList.toggle("spinner", isLoading);
+  }
+}
 
 /**
  * Checks if a news item is considered "New" (published within the last 6 hours).
@@ -97,7 +113,7 @@ const BASE_API_URL = `https://api.rss2json.com/v1/api.json?rss_url=`;
  */
 function isNewNews(pubDate) {
   const publishedTime = new Date(pubDate).getTime();
-  const currentTime = new Date().getTime(); // 6 hours in milliseconds: 6 * 60 minutes * 60 seconds * 1000 milliseconds
+  const currentTime = new Date().getTime();
   const sixHoursInMs = 6 * 60 * 60 * 1000;
   return currentTime - publishedTime < sixHoursInMs;
 }
@@ -109,6 +125,7 @@ function createCategoryButtons() {
   Object.keys(ALL_FEEDS).forEach((category) => {
     const button = document.createElement("button");
     button.textContent = category;
+    button.setAttribute("data-category", category);
     button.onclick = () => filterNews(category);
 
     if (category === activeCategory) {
@@ -120,26 +137,38 @@ function createCategoryButtons() {
 
 // --- Filtering Logic ---
 function filterNews(category) {
+  if (activeCategory === category && !refreshButton.disabled) {
+    // If the category is already active, treat the click as a refresh
+    fetchNews(true); // Force refresh
+    return;
+  }
+
   activeCategory = category; // Update active button state
 
   document.querySelectorAll("#category-buttons button").forEach((btn) => {
     btn.classList.remove("active");
     if (btn.textContent === category) btn.classList.add("active");
-  }); // Run the fetch function for the new category
+  });
 
   fetchNews();
 }
 
-// --- Fetching and Sorting Logic (MAJOR UPDATE) ---
-async function fetchNews() {
-  // 1. Show loading message immediately
+// --- Fetching and Sorting Logic ---
+/**
+ * Fetches, sorts, and renders news for the active category.
+ * @param {boolean} [isManualRefresh=false] Flag to indicate if this was triggered by the refresh button.
+ */
+async function fetchNews(isManualRefresh = false) {
+  // 1. Show loading message and state immediately
+  updateStatus(`Fetching **${activeCategory}** headlines...`, true);
   newsContainer.innerHTML =
-    '<li class="loading">Fetching latest headlines...</li>';
+    '<li class="loading"><span class="icon spinner">⏳</span> Loading headlines... please wait.</li>';
 
   const feedsToFetch = ALL_FEEDS[activeCategory] || [];
   const fetchPromises = [];
-  const errorFeeds = []; // 2. Create all fetch promises
+  const errorFeeds = [];
 
+  // 2. Create all fetch promises
   feedsToFetch.forEach((feed) => {
     const API_URL = `${BASE_API_URL}${encodeURIComponent(feed.url)}`;
 
@@ -152,14 +181,16 @@ async function fetchNews() {
       })
       .then((data) => {
         if (data.status !== "ok" || !data.items) {
-          return []; // Return empty array on successful fetch with no items
-        } // Use the specified source name if the feed title is empty or generic
+          return [];
+        }
 
+        // Use the specified source name if the feed title is empty or generic
         const feedTitle =
           data.feed.title && data.feed.title.length > 5
             ? data.feed.title
-            : feed.source; // Map and include the source information in each item object
+            : feed.source;
 
+        // Map and include the source information, limiting items to top 5
         return data.items.slice(0, 5).map((item) => ({
           ...item,
           sourceTitle: feedTitle,
@@ -168,7 +199,7 @@ async function fetchNews() {
       .catch((error) => {
         console.error(`Fetch error for ${feed.source}:`, error);
         errorFeeds.push(feed.source);
-        return []; // Return empty array on failure
+        return [];
       });
 
     fetchPromises.push(fetchPromise);
@@ -176,17 +207,18 @@ async function fetchNews() {
 
   try {
     // 3. Wait for all promises to resolve
-    const results = await Promise.all(fetchPromises); // 4. Flatten the array of results (from array of arrays to single array)
+    const results = await Promise.all(fetchPromises);
+    // 4. Flatten the array of results
+    let allNewsItems = results.flat();
 
-    let allNewsItems = results.flat(); // 5. Sort the collected items by publication date (newest first)
-
+    // 5. Sort the collected items by publication date (newest first)
     allNewsItems.sort((a, b) => {
-      // Parse dates into millisecond timestamps for comparison
       const dateA = new Date(a.pubDate).getTime();
-      const dateB = new Date(b.pubDate).getTime(); // Sorting in descending order (newest first)
+      const dateB = new Date(b.pubDate).getTime();
       return dateB - dateA;
-    }); // 6. Clear the container and render the sorted items
+    });
 
+    // 6. Clear the container and render the sorted items
     newsContainer.innerHTML = "";
     const fragment = document.createDocumentFragment();
 
@@ -198,7 +230,7 @@ async function fetchNews() {
         const listItem = document.createElement("li");
         listItem.className = "news-item";
 
-        const isNew = isNewNews(item.pubDate); // Format the date/time (e.g., Dec 13, 1:21 PM)
+        const isNew = isNewNews(item.pubDate);
 
         const formattedDate = new Date(item.pubDate).toLocaleString("en-US", {
           month: "short",
@@ -210,34 +242,63 @@ async function fetchNews() {
         const newBadge = isNew ? '<span class="new-badge">NEW</span>' : "";
 
         listItem.innerHTML = `
-                <a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a>
-                ${newBadge}
-                <span class="news-meta">Source: ${item.sourceTitle} | Published: ${formattedDate}</span>
-            `;
+                    <a href="${item.link}" target="_blank" rel="noopener noreferrer">
+                        ${item.title}
+                    </a>
+                    ${newBadge}
+                    <span class="news-meta">
+                        Source: **${item.sourceTitle}** | Published: ${formattedDate}
+                    </span>
+                `;
         fragment.appendChild(listItem);
       });
       newsContainer.appendChild(fragment);
-    } // 7. Display any error messages at the end
+    }
 
+    // 7. Display any error messages at the end
     if (errorFeeds.length > 0) {
+      const errorList = document.createElement("ul");
       errorFeeds.forEach((source) => {
         const errorItem = document.createElement("li");
         errorItem.className = "news-item error-item";
-        errorItem.innerHTML = `Error fetching headlines from <strong>${source}</strong>.`;
-        newsContainer.appendChild(errorItem);
+        errorItem.innerHTML = `⚠️ **Error:** Failed to load headlines from **${source}**.`;
+        errorList.appendChild(errorItem);
       });
+      newsContainer.appendChild(errorList);
     }
+
+    // 8. Update status bar with success message
+    const totalItems = allNewsItems.length;
+    const message = isManualRefresh
+      ? `Refreshed successfully. Found **${totalItems}** headlines.`
+      : `Showing **${activeCategory}**. Found **${totalItems}** headlines.`;
+
+    updateStatus(message, false);
   } catch (e) {
     // Catch any unexpected error in the overall process
     newsContainer.innerHTML =
-      '<li class="loading error-item">An unexpected error occurred while processing feeds.</li>';
+      '<li class="loading error-item">🚨 An unexpected error occurred while processing feeds.</li>';
     console.error("Critical Fetch/Sort Error:", e);
+    updateStatus("🚨 Error in fetching process.", false);
   }
 }
 
-// --- Initialize ---
+// --- Initialize and Event Listeners ---
+
+// Manual Refresh Handler
+refreshButton.addEventListener("click", () => {
+  // Only refresh if not already loading
+  if (!refreshButton.disabled) {
+    fetchNews(true);
+  }
+});
+
+// Initialization
 createCategoryButtons();
 fetchNews();
 
 // Auto-refresh every 20 minutes (1,200,000 milliseconds)
-setInterval(fetchNews, 20 * 60 * 1000);
+setInterval(() => {
+  // Auto-refresh, but don't show the manual refresh success message
+  fetchNews(false);
+}, 20 * 60 * 1000);
