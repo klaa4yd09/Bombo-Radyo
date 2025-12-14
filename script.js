@@ -20,6 +20,7 @@ const ALL_FEEDS = {
       url: "https://www.bomboradyo.com/category/national-news/feed/",
       source: "Bombo Radyo Nation",
     },
+    // The 'Bombo Radyo Balitang Espesyal' feed has been moved to its own category below
     {
       url: "https://www.brigadanews.ph/category/national/feed/",
       source: "Brigada News",
@@ -72,15 +73,11 @@ const ALL_FEEDS = {
     { url: "https://www.pep.ph/feed/", source: "PEP.ph" },
     { url: "https://www.pikapika.ph/feed", source: "Pikapika" },
   ],
-  Politics: [
+  // New Category
+  "Balitang Espesyal": [
     {
-      url: "http://rss.cnn.com/rss/cnn_allpolitics.rss",
-      source: "CNN Politics",
-    },
-    { url: "https://www.politiko.com.ph/feed", source: "Politiko PH" },
-    {
-      url: "https://www.manilatimes.net/opinion/feed",
-      source: "Manila Times Opinion",
+      url: "https://www.bomboradyo.com/category/balitang-espesyal/feed/",
+      source: "Bombo Radyo Balitang Espesyal",
     },
   ],
   General: [
@@ -146,6 +143,7 @@ function updateStatus(message, isLoading = false) {
 function isNewNews(pubDate) {
   const publishedTime = new Date(pubDate).getTime();
   const currentTime = new Date().getTime();
+  // News is considered "new" if published within the last 6 hours
   return currentTime - publishedTime < 6 * 60 * 60 * 1000;
 }
 
