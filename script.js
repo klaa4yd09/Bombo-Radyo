@@ -261,6 +261,19 @@ const ALL_FEEDS = {
       url: "https://feeds.arstechnica.com/arstechnica/index",
       source: "Ars Technica",
     },
+    // Global Tech News
+    { url: "https://techcrunch.com/feed/", source: "TechCrunch" },
+    { url: "https://www.engadget.com/rss.xml", source: "Engadget" },
+    {
+      url: "https://www.wired.com/feed/category/gear/latest/rss",
+      source: "Wired Gear",
+    },
+    { url: "https://www.cnet.com/rss/news/", source: "CNET" },
+    {
+      url: "https://mashable.com/feeds/rss/technology",
+      source: "Mashable Tech",
+    },
+    { url: "https://news.ycombinator.com/rss", source: "Hacker News" },
   ],
 
   // ===============================
@@ -322,64 +335,30 @@ const ALL_FEEDS = {
     ],
   },
 
-  // ===============================
-  // INTERNATIONAL
-  // ===============================
   International: [
     {
-      url: "https://feeds.bbci.co.uk/news/world/rss.xml",
-      source: "BBC World News",
+      url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+      source: "The New York Times",
     },
     {
-      url: "http://rss.cnn.com/rss/cnn_topstories.rss",
-      source: "CNN Top Stories",
+      url: "https://feeds.bbci.co.uk/news/world/rss.xml",
+      source: "BBC News",
     },
-    { url: "http://rss.cnn.com/rss/cnn_world.rss", source: "CNN World" },
-    { url: "https://www.aljazeera.com/xml/rss/all.xml", source: "Al Jazeera" },
-    { url: "https://www.reutersagency.com/feed/", source: "Reuters" },
+    {
+      url: "https://www.aljazeera.com/xml/rss/all.xml",
+      source: "Al Jazeera",
+    },
     {
       url: "https://www.bomboradyo.com/category/international/feed/",
       source: "Bombo Radyo World",
     },
-    { url: "https://www.rappler.com/world/feed/", source: "Rappler World" },
     {
-      url: "https://apnews.com/apf-topnews?format=rss",
-      source: "Associated Press",
-    },
-    { url: "https://feeds.npr.org/1004/rss.xml", source: "NPR World" },
-    { url: "https://news.yahoo.com/rss/", source: "Yahoo News" },
-    { url: "https://www.philstar.com/rss/world", source: "Philstar World" },
-    {
-      url: "http://feeds.nytimes.com/nyt/rss/World",
-      source: "The New York Times World",
+      url: "https://www.rappler.com/world/feed/",
+      source: "Rappler World",
     },
     {
-      url: "https://feeds.washingtonpost.com/rss/world",
-      source: "The Washington Post World",
-    },
-    {
-      url: "https://www.theguardian.com/world/rss",
-      source: "The Guardian World",
-    },
-    {
-      url: "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
-      source: "The Wall Street Journal World",
-    },
-    {
-      url: "https://www.ft.com/?format=rss",
-      source: "Financial Times Top Stories",
-    },
-    {
-      url: "https://www.smh.com.au/rss/world.xml",
-      source: "Sydney Morning Herald World (Australia)",
-    },
-    {
-      url: "https://www.france24.com/en/rss",
-      source: "France 24",
-    },
-    {
-      url: "https://www.dw.com/en/rss/all",
-      source: "DW (Deutsche Welle) Top Stories",
+      url: "https://www.philstar.com/rss/world",
+      source: "Philstar World",
     },
   ],
 };
@@ -439,10 +418,10 @@ async function fetchNews(isManual = false) {
     allItems = categoryData.items.map((item) => ({
       ...item,
       title: item.title,
-      pubDate: null, 
+      pubDate: null,
       sourceTitle: item.source,
     }));
-  } 
+  }
   // --- RSS FEED HANDLER ---
   else {
     const feeds = Array.isArray(categoryData) ? categoryData : [];
@@ -459,18 +438,16 @@ async function fetchNews(isManual = false) {
     );
 
     const results = await Promise.all(promises);
-    
+
     // THE SORTING LOGIC
-    allItems = results
-      .flat()
-      .sort((a, b) => {
-        // Create Date objects for comparison
-        const dateA = new Date(a.pubDate);
-        const dateB = new Date(b.pubDate);
-        
-        // Sort from Newest to Oldest
-        return dateB - dateA;
-      });
+    allItems = results.flat().sort((a, b) => {
+      // Create Date objects for comparison
+      const dateA = new Date(a.pubDate);
+      const dateB = new Date(b.pubDate);
+
+      // Sort from Newest to Oldest
+      return dateB - dateA;
+    });
   }
 
   // --- RENDERING ---
@@ -490,19 +467,25 @@ async function fetchNews(isManual = false) {
       metaHTML = `Source: <strong>${item.sourceTitle}</strong>`;
     } else {
       // Format the date to be human-readable
-      const date = item.pubDate ? new Date(item.pubDate).toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }) : "Recently";
-      
+      const date = item.pubDate
+        ? new Date(item.pubDate).toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "Recently";
+
       metaHTML = `Source: <strong>${item.sourceTitle}</strong> | ${date}`;
     }
 
     li.innerHTML = `
       <div>
-        ${item.pubDate && isNewNews(item.pubDate) ? `<span class="new-badge">NEW</span>` : ""}
+        ${
+          item.pubDate && isNewNews(item.pubDate)
+            ? `<span class="new-badge">NEW</span>`
+            : ""
+        }
         <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
       </div>
       <span class="news-meta">
@@ -533,3 +516,20 @@ setInterval(() => {
   }
 }, 20 * 60 * 1000);
 
+// --- PWA SERVICE WORKER REGISTRATION (NEW ADDITION) ---
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    // Register the Service Worker file
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((registration) => {
+        console.log(
+          "Service Worker registered successfully with scope: ",
+          registration.scope
+        );
+      })
+      .catch((registrationError) => {
+        console.log("Service Worker registration failed: ", registrationError);
+      });
+  });
+}
