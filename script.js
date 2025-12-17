@@ -7,12 +7,16 @@ const ALL_FEEDS = {
   // NATIONAL / GENERAL NEWS
   // ===============================
   "National News": [
-    { url: "https://news.abs-cbn.com/feed", source: "ABS-CBN News" },
-    { url: "https://www.inquirer.net/fullfeed", source: "Inquirer Main" },
+    // --- Core Major PH Media (Original List) ---
+    { url: "https://news.abs-cbn.com/feed", source: "ABS-CBN News (General)" },
+    {
+      url: "https://www.inquirer.net/fullfeed",
+      source: "Inquirer Main (General)",
+    },
     { url: "https://newsinfo.inquirer.net/feed", source: "Inquirer NewsInfo" },
     {
       url: "https://www.gmanetwork.com/news/rss/news/",
-      source: "GMA News Online",
+      source: "GMA News Online (General)",
     },
     {
       url: "https://www.gmanetwork.com/news/rss/regions/",
@@ -20,10 +24,13 @@ const ALL_FEEDS = {
     },
     {
       url: "https://www.philstar.com/rss/headlines",
-      source: "Philippine Star",
+      source: "Philippine Star (General)",
     },
-    { url: "https://mb.com.ph/feed/", source: "Manila Bulletin" },
-    { url: "https://www.manilatimes.net/news/feed", source: "Manila Times" },
+    { url: "https://mb.com.ph/feed/", source: "Manila Bulletin (General)" },
+    {
+      url: "https://www.manilatimes.net/news/feed",
+      source: "Manila Times (General)",
+    },
     { url: "https://www.ptvnews.ph/feed/", source: "PTV News" },
     { url: "https://www.untvweb.com/feed/", source: "UNTV News" },
     {
@@ -42,10 +49,46 @@ const ALL_FEEDS = {
     },
     { url: "https://rmn.ph/feed/", source: "RMN Networks" },
     { url: "https://www.journalnews.com.ph/feed/", source: "People's Journal" },
+
+    // --- New: Specialized PH Sectional Feeds ---
+    { url: "https://www.philstar.com/rss/nation", source: "Philstar Nation" },
+    {
+      url: "https://www.inquirer.net/columns/feed",
+      source: "Inquirer Opinion/Columns",
+    },
+    {
+      url: "https://www.manilatimes.net/news/national/feed/",
+      source: "Manila Times Nation",
+    },
+    { url: "https://www.gmanetwork.com/news/rss/metro/", source: "GMA Metro" },
+
+    // --- New: Additional Major PH News Outlets ---
+    {
+      url: "https://manilastandard.net/rss-feed",
+      source: "Manila Standard (General)",
+    },
+    { url: "https://tempo.com.ph/feed/", source: "Tempo News" },
+    { url: "https://tonite.abante.com.ph/feed", source: "Abante Tonite" },
+    {
+      url: "https://interaksyon.philstar.com/feed/",
+      source: "Interaksyon (Political & Social)",
+    },
+
+    // --- New: PH Government/Institutional Feeds ---
+    {
+      url: "http://www.senate.gov.ph/rss/rss_news.aspx",
+      source: "Senate of the Philippines (News)",
+    },
+    {
+      url: "https://www.bsp.gov.ph/SitePages/RSS.aspx",
+      source: "Bangko Sentral ng Pilipinas (BSP)",
+    },
+
+    // --- International News (Original List) ---
     {
       url: "https://feeds.bbci.co.uk/news/world/rss.xml",
       source: "BBC World News",
-    }, // Note: Duplicated feeds below removed
+    },
     { url: "https://rss.cnn.com/rss/edition.rss", source: "CNN World" },
     { url: "https://www.aljazeera.com/xml/rss/all.xml", source: "Al Jazeera" },
   ],
@@ -119,6 +162,46 @@ const ALL_FEEDS = {
     {
       url: "https://www.espn.com/espn/rss/soccer/news",
       source: "ESPN Soccer Headlines",
+    },
+    { url: "https://www.espn.com/espn/rss/news", source: "ESPN General" },
+    { url: "https://sports.inquirer.net/feed", source: "Inquirer Sports (PH)" },
+    {
+      url: "https://www.gmanetwork.com/news/rss/sports/",
+      source: "GMA Sports (PH)",
+    },
+    {
+      url: "https://www.rappler.com/sports/feed/",
+      source: "Rappler Sports (PH)",
+    },
+    {
+      url: "https://www.abs-cbn.com/sports/rss/latest-news",
+      source: "ABS-CBN Sports (PH)",
+    },
+    {
+      url: "https://www.bomboradyo.com/category/sports/feed/",
+      source: "Bombo Radyo Sports (PH)",
+    },
+    {
+      url: "https://www.philstar.com/rss/sports",
+      source: "Philstar Sports (PH)",
+    },
+    { url: "https://www.spin.ph/feed", source: "SPIN.ph (PH)" },
+    {
+      url: "https://tiebreakertimes.com.ph/feed",
+      source: "Tiebreaker Times (PH)",
+    },
+    // New general international feeds (from previous suggestions)
+    {
+      url: "https://rss.app/feeds/H3y9L6jQ64f5uMv2.xml",
+      source: "BBC Sport (General)",
+    },
+    {
+      url: "http://feeds.reuters.com/reuters/sportsNews",
+      source: "Reuters Sports News",
+    },
+    {
+      url: "https://www.cbssports.com/rss/headlines/",
+      source: "CBS Sports (General)",
     },
   ],
 
