@@ -439,13 +439,12 @@ async function fetchNews(isManual = false) {
     allItems = categoryData.items.map((item) => ({
       ...item,
       title: item.title,
-      pubDate: null, // No date for social links
+      pubDate: null, 
       sourceTitle: item.source,
     }));
-  }
+  } 
   // --- RSS FEED HANDLER ---
   else {
-    // Check if categoryData is an array (for regular RSS feeds)
     const feeds = Array.isArray(categoryData) ? categoryData : [];
 
     const promises = feeds.map((feed) =>
@@ -453,58 +452,63 @@ async function fetchNews(isManual = false) {
         .then((res) => (res.ok ? res.json() : null))
         .then((data) =>
           data && data.status === "ok"
-            ? data.items
-                .slice(0, 5)
-                .map((item) => ({ ...item, sourceTitle: feed.source }))
+            ? data.items.map((item) => ({ ...item, sourceTitle: feed.source }))
             : []
         )
         .catch(() => [])
     );
 
     const results = await Promise.all(promises);
+    
+    // THE SORTING LOGIC
     allItems = results
       .flat()
-      .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+      .sort((a, b) => {
+        // Create Date objects for comparison
+        const dateA = new Date(a.pubDate);
+        const dateB = new Date(b.pubDate);
+        
+        // Sort from Newest to Oldest
+        return dateB - dateA;
+      });
   }
 
+  // --- RENDERING ---
   newsContainer.innerHTML = "";
 
   if (!allItems.length) {
     newsContainer.innerHTML = `<li class="loading">No news available.</li>`;
   }
 
-  allItems.forEach((item) => {
+  // Limit to top 40 items to keep the app fast
+  allItems.slice(0, 40).forEach((item) => {
     const li = document.createElement("li");
     li.className = "news-item";
 
-    // Determine the meta-data format based on whether it's an RSS feed or Social Link
     let metaHTML;
     if (categoryData && categoryData.isSocialMedia) {
       metaHTML = `Source: <strong>${item.sourceTitle}</strong>`;
     } else {
-      const date = new Date(item.pubDate).toLocaleString("en-US", {
+      // Format the date to be human-readable
+      const date = item.pubDate ? new Date(item.pubDate).toLocaleString("en-US", {
         month: "short",
         day: "numeric",
         hour: "2-digit",
         minute: "2-digit",
-      });
+      }) : "Recently";
+      
       metaHTML = `Source: <strong>${item.sourceTitle}</strong> | ${date}`;
     }
 
     li.innerHTML = `
       <div>
-        ${
-          item.pubDate && isNewNews(item.pubDate)
-            ? `<span class="new-badge">NEW</span>`
-            : ""
-        }
+        ${item.pubDate && isNewNews(item.pubDate) ? `<span class="new-badge">NEW</span>` : ""}
         <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
       </div>
       <span class="news-meta">
         ${metaHTML}
       </span>
     `;
-
     newsContainer.appendChild(li);
   });
 
@@ -528,3 +532,4 @@ setInterval(() => {
     fetchNews(false);
   }
 }, 20 * 60 * 1000);
+
