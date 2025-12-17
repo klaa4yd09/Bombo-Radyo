@@ -357,6 +357,38 @@ const ALL_FEEDS = {
     { url: "https://feeds.npr.org/1004/rss.xml", source: "NPR World" },
     { url: "https://news.yahoo.com/rss/", source: "Yahoo News" },
     { url: "https://www.philstar.com/rss/world", source: "Philstar World" },
+    {
+      url: "http://feeds.nytimes.com/nyt/rss/World",
+      source: "The New York Times World",
+    },
+    {
+      url: "https://feeds.washingtonpost.com/rss/world",
+      source: "The Washington Post World",
+    },
+    {
+      url: "https://www.theguardian.com/world/rss",
+      source: "The Guardian World",
+    },
+    {
+      url: "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
+      source: "The Wall Street Journal World",
+    },
+    {
+      url: "https://www.ft.com/?format=rss",
+      source: "Financial Times Top Stories",
+    },
+    {
+      url: "https://www.smh.com.au/rss/world.xml",
+      source: "Sydney Morning Herald World (Australia)",
+    },
+    {
+      url: "https://www.france24.com/en/rss",
+      source: "France 24",
+    },
+    {
+      url: "https://www.dw.com/en/rss/all",
+      source: "DW (Deutsche Welle) Top Stories",
+    },
   ],
 };
 
