@@ -65,6 +65,14 @@ const ALL_FEEDS = {
     { url: "https://www.philstar.com/rss/sports", source: "Philstar Sports" },
     { url: "https://www.spin.ph/feed", source: "SPIN.ph" },
     { url: "https://tiebreakertimes.com.ph/feed", source: "Tiebreaker Times" },
+    {
+      url: "https://www.espn.com/espn/rss/nba/news",
+      source: "ESPN NBA Headlines",
+    },
+    {
+      url: "https://www.espn.com/espn/rss/soccer/news",
+      source: "ESPN Soccer Headlines",
+    },
   ],
 
   Showbiz: [
