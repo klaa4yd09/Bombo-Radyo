@@ -53,6 +53,10 @@ const ALL_FEEDS = {
       url: "https://www.abs-cbn.com/sports/rss/latest-news",
       source: "ABS-CBN Sports",
     },
+    {
+      url: "https://nba.nbcsports.com/category/top-posts/feed/",
+      source: "NBC Sports",
+    },
     { url: "https://www.rappler.com/sports/feed/", source: "Rappler Sports" },
     {
       url: "https://www.bomboradyo.com/category/sports/feed/",
