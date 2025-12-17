@@ -279,6 +279,30 @@ const ALL_FEEDS = {
       url: "https://www.bomboradyo.com/category/balitang-espesyal/feed/",
       source: "Bombo Radyo Special Reports",
     },
+    {
+      url: "https://www.gmanetwork.com/news/rss/specialreports/",
+      source: "GMA News Special Reports",
+    },
+    {
+      url: "https://www.manilatimes.net/the-sunday-times/feed/",
+      source: "Manila Times Sunday Magazine",
+    },
+    {
+      url: "https://interaksyon.philstar.com/feed/",
+      source: "Interaksyon (Political & Social)",
+    },
+    {
+      url: "https://www.philstar.com/rss/lifestyle/features",
+      source: "Philstar Lifestyle Features",
+    },
+    {
+      url: "https://mb.com.ph/category/lifestyle/luminaries-and-life/feed/",
+      source: "Manila Bulletin Luminaries & Life",
+    },
+    {
+      url: "https://www.rappler.com/news/feed/",
+      source: "Rappler News (General - Key Investigations)",
+    },
   ],
 
   // ===============================
