@@ -4,7 +4,7 @@
 // ===============================
 const ALL_FEEDS = {
   // ===============================
-  // NATIONAL / GENERAL NEWS
+  // NATIONAL
   // ===============================
   "National News": [
     // --- Core Major PH Media (Original List) ---
@@ -83,14 +83,6 @@ const ALL_FEEDS = {
       url: "https://www.bsp.gov.ph/SitePages/RSS.aspx",
       source: "Bangko Sentral ng Pilipinas (BSP)",
     },
-
-    // --- International News (Original List) ---
-    {
-      url: "https://feeds.bbci.co.uk/news/world/rss.xml",
-      source: "BBC World News",
-    },
-    { url: "https://rss.cnn.com/rss/edition.rss", source: "CNN World" },
-    { url: "https://www.aljazeera.com/xml/rss/all.xml", source: "Al Jazeera" },
   ],
 
   // ===============================
