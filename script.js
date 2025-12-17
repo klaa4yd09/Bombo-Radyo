@@ -336,61 +336,10 @@ const ALL_FEEDS = {
   },
 
   International: [
-    {
-      url: "https://feeds.bbci.co.uk/news/world/rss.xml",
-      source: "BBC World News",
-    },
-    {
-      url: "http://rss.cnn.com/rss/cnn_topstories.rss",
-      source: "CNN Top Stories",
-    },
-    { url: "http://rss.cnn.com/rss/cnn_world.rss", source: "CNN World" },
     { url: "https://www.aljazeera.com/xml/rss/all.xml", source: "Al Jazeera" },
-    { url: "https://www.reutersagency.com/feed/", source: "Reuters" },
-    {
-      url: "https://www.bomboradyo.com/category/international/feed/",
-      source: "Bombo Radyo World",
-    },
-    { url: "https://www.rappler.com/world/feed/", source: "Rappler World" },
-    {
-      url: "https://apnews.com/apf-topnews?format=rss",
-      source: "Associated Press",
-    },
-    { url: "https://feeds.npr.org/1004/rss.xml", source: "NPR World" },
-    { url: "https://news.yahoo.com/rss/", source: "Yahoo News" },
-    { url: "https://www.philstar.com/rss/world", source: "Philstar World" },
-    {
-      url: "http://feeds.nytimes.com/nyt/rss/World",
-      source: "The New York Times World",
-    },
-    {
-      url: "https://feeds.washingtonpost.com/rss/world",
-      source: "The Washington Post World",
-    },
-    {
-      url: "https://www.theguardian.com/world/rss",
-      source: "The Guardian World",
-    },
-    {
-      url: "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
-      source: "The Wall Street Journal World",
-    },
-    {
-      url: "https://www.ft.com/?format=rss",
-      source: "Financial Times Top Stories",
-    },
-    {
-      url: "https://www.smh.com.au/rss/world.xml",
-      source: "Sydney Morning Herald World (Australia)",
-    },
-    {
-      url: "https://www.france24.com/en/rss",
-      source: "France 24",
-    },
-    {
-      url: "https://www.dw.com/en/rss/all",
-      source: "DW (Deutsche Welle) Top Stories",
-    },
+    { url: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml", source: "NY Times" },
+    { url: "https://feeds.bbci.co.uk/news/rss.xml", source: "BBC News" },
+    { url: "https://www.reutersagency.com/feed/", source: "Reuters" }
   ],
 };
 
@@ -564,4 +513,5 @@ if ("serviceWorker" in navigator) {
       });
   });
 }
+
 
