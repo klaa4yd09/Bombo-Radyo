@@ -350,22 +350,98 @@ const ALL_FEEDS = {
   ],
 };
 
+// ===============================
+// UI REFERENCES & LOGIC
+// ===============================
 const newsContainer = document.getElementById("news-container");
-const buttonContainer = document.getElementById("category-buttons");
+const dropdown = document.getElementById("category-dropdown"); // Changed to dropdown
 const refreshButton = document.getElementById("refresh-button");
 const statusMessage = document.getElementById("status-message");
 
-let activeCategory = "National News";
+// Set a default source
+let activeCategory = "ABS-CBN";
 const BASE_API_URL = `https://api.rss2json.com/v1/api.json?rss_url=`;
 
-// Status updater
+/**
+ * 1. EXTRACT UNIQUE BRANDS
+ */
+function getMediaBrands() {
+  const brands = new Set();
+  const brandKeywords = [
+    "ABS-CBN",
+    "Inquirer",
+    "GMA",
+    "Philstar",
+    "Manila Times",
+    "Rappler",
+    "BBC",
+    "ESPN",
+    "Reuters",
+    "CNN",
+    "Bombo Radyo",
+    "BusinessMirror",
+    "Manila Bulletin",
+    "SunStar",
+    "RMN",
+    "Brigada",
+    "Al Jazeera",
+    "CNBC",
+    "France 24",
+    "DW News",
+    "Manila Standard",
+    "BusinessWorld",
+    "PTV",
+    "UNTV",
+    "PNA",
+    "Senate",
+    "Bangko Sentral",
+    "Nikkei",
+    "The Verge",
+    "TechCrunch",
+  ];
+
+  Object.keys(ALL_FEEDS).forEach((category) => {
+    const categoryData = ALL_FEEDS[category];
+    if (Array.isArray(categoryData)) {
+      categoryData.forEach((feed) => {
+        const matchedBrand = brandKeywords.find((brand) =>
+          feed.source.toLowerCase().includes(brand.toLowerCase())
+        );
+        brands.add(matchedBrand || feed.source);
+      });
+    } else if (categoryData.isSocialMedia) {
+      brands.add("Local Social Media");
+    }
+  });
+
+  return Array.from(brands).sort();
+}
+
+/**
+ * 2. POPULATE DROPDOWN
+ */
+function populateDropdown() {
+  const brandList = getMediaBrands();
+  dropdown.innerHTML = ""; // Clear existing
+
+  brandList.forEach((brandName) => {
+    const option = document.createElement("option");
+    option.value = brandName;
+    option.textContent = brandName;
+    if (brandName === activeCategory) option.selected = true;
+    dropdown.appendChild(option);
+  });
+}
+
+/**
+ * 3. STATUS UPDATER
+ */
 function updateStatus(message, isLoading = false) {
   statusMessage.innerHTML = message.replace(
     /\*\*(.*?)\*\*/g,
     "<strong>$1</strong>"
   );
   refreshButton.disabled = isLoading;
-
   const icon = refreshButton.querySelector(".icon");
   if (icon) {
     icon.innerHTML = isLoading ? "⏳" : "🔄";
@@ -373,47 +449,38 @@ function updateStatus(message, isLoading = false) {
   }
 }
 
-// NOTE: isNewNews is skipped for Social Links, so we just return false
 function isNewNews(pubDate) {
+  if (!pubDate) return false;
   return Date.now() - new Date(pubDate).getTime() < 6 * 60 * 60 * 1000;
 }
 
-function createCategoryButtons() {
-  buttonContainer.innerHTML = "";
-  Object.keys(ALL_FEEDS).forEach((category) => {
-    const btn = document.createElement("button");
-    btn.textContent = category;
-    btn.className = category === activeCategory ? "active" : "";
-    btn.onclick = () => {
-      activeCategory = category;
-      createCategoryButtons();
-      fetchNews();
-    };
-    buttonContainer.appendChild(btn);
-  });
-}
-
+/**
+ * 4. FETCH NEWS FILTERED BY BRAND
+ */
 async function fetchNews(isManual = false) {
   updateStatus(`Fetching **${activeCategory}**...`, true);
-  newsContainer.innerHTML = `<li class="loading">⏳ Loading headlines...</li>`;
+  newsContainer.innerHTML = `<li class="loading">⏳ Gathering headlines...</li>`;
 
-  const categoryData = ALL_FEEDS[activeCategory];
   let allItems = [];
 
-  // --- SOCIAL MEDIA/LINK HANDLER ---
-  if (categoryData && categoryData.isSocialMedia) {
-    allItems = categoryData.items.map((item) => ({
+  if (activeCategory === "Local Social Media") {
+    allItems = ALL_FEEDS["Local Links"].items.map((item) => ({
       ...item,
-      title: item.title,
       pubDate: null,
       sourceTitle: item.source,
     }));
-  }
-  // --- RSS FEED HANDLER ---
-  else {
-    const feeds = Array.isArray(categoryData) ? categoryData : [];
+  } else {
+    let targetedFeeds = [];
+    Object.keys(ALL_FEEDS).forEach((cat) => {
+      if (Array.isArray(ALL_FEEDS[cat])) {
+        const matches = ALL_FEEDS[cat].filter((f) =>
+          f.source.toLowerCase().includes(activeCategory.toLowerCase())
+        );
+        targetedFeeds = [...targetedFeeds, ...matches];
+      }
+    });
 
-    const promises = feeds.map((feed) =>
+    const promises = targetedFeeds.map((feed) =>
       fetch(`${BASE_API_URL}${encodeURIComponent(feed.url)}`)
         .then((res) => (res.ok ? res.json() : null))
         .then((data) =>
@@ -425,100 +492,77 @@ async function fetchNews(isManual = false) {
     );
 
     const results = await Promise.all(promises);
-
-    // THE SORTING LOGIC
-    allItems = results.flat().sort((a, b) => {
-      // Create Date objects for comparison
-      const dateA = new Date(a.pubDate);
-      const dateB = new Date(b.pubDate);
-
-      // Sort from Newest to Oldest
-      return dateB - dateA;
-    });
+    allItems = results
+      .flat()
+      .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
   }
 
-  // --- RENDERING ---
-  newsContainer.innerHTML = "";
-
-  if (!allItems.length) {
-    newsContainer.innerHTML = `<li class="loading">No news available.</li>`;
-  }
-
-  // Limit to top 40 items to keep the app fast
-  allItems.slice(0, 40).forEach((item) => {
-    const li = document.createElement("li");
-    li.className = "news-item";
-
-    let metaHTML;
-    if (categoryData && categoryData.isSocialMedia) {
-      metaHTML = `Source: <strong>${item.sourceTitle}</strong>`;
-    } else {
-      // Format the date to be human-readable
-      const date = item.pubDate
-        ? new Date(item.pubDate).toLocaleString("en-US", {
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        : "Recently";
-
-      metaHTML = `Source: <strong>${item.sourceTitle}</strong> | ${date}`;
-    }
-
-    li.innerHTML = `
-        <div>
-          ${
-            item.pubDate && isNewNews(item.pubDate)
-              ? `<span class="new-badge">NEW</span>`
-              : ""
-          }
-          <a href="${item.link}" target="_blank" rel="noopener">${
-      item.title
-    }</a>
-        </div>
-        <span class="news-meta">
-          ${metaHTML}
-        </span>
-      `;
-    newsContainer.appendChild(li);
-  });
-
+  renderNews(allItems);
   updateStatus(
     isManual
-      ? `Refreshed **${allItems.length}** headlines.`
-      : `Showing **${activeCategory}**.`,
+      ? `Refreshed **${allItems.length}** items.`
+      : `Source: **${activeCategory}**.`,
     false
   );
 }
 
+/**
+ * 5. RENDERING ENGINE
+ */
+function renderNews(items) {
+  newsContainer.innerHTML = "";
+  if (!items.length) {
+    newsContainer.innerHTML = `<li class="loading">No news found for this source.</li>`;
+    return;
+  }
+
+  items.slice(0, 50).forEach((item) => {
+    const li = document.createElement("li");
+    li.className = "news-item";
+    const date = item.pubDate
+      ? new Date(item.pubDate).toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "Link";
+
+    li.innerHTML = `
+      <div>
+        ${isNewNews(item.pubDate) ? `<span class="new-badge">NEW</span>` : ""}
+        <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
+      </div>
+      <span class="news-meta">Source: <strong>${
+        item.sourceTitle
+      }</strong> | ${date}</span>
+    `;
+    newsContainer.appendChild(li);
+  });
+}
+
+// --- INITIALIZE APP ---
+
+// Event listener for dropdown change
+dropdown.addEventListener("change", (e) => {
+  activeCategory = e.target.value;
+  fetchNews();
+});
+
 refreshButton.addEventListener("click", () => fetchNews(true));
 
-createCategoryButtons();
+// Run init functions
+populateDropdown();
 fetchNews();
-// Only run interval for automatic fetch if the category is not Social Links
+
+// Auto-refresh
 setInterval(() => {
-  const categoryData = ALL_FEEDS[activeCategory];
-  // FIX: Check if categoryData exists AND if isSocialMedia is NOT true
-  if (categoryData && !categoryData.isSocialMedia) {
-    fetchNews(false);
-  }
+  if (activeCategory !== "Local Social Media") fetchNews(false);
 }, 20 * 60 * 1000);
 
-// --- PWA SERVICE WORKER REGISTRATION (NEW ADDITION) ---
+// Service Worker
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    // Register the Service Worker file
-    navigator.serviceWorker
-      .register("/sw.js")
-      .then((registration) => {
-        console.log(
-          "Service Worker registered successfully with scope: ",
-          registration.scope
-        );
-      })
-      .catch((registrationError) => {
-        console.log("Service Worker registration failed: ", registrationError);
-      });
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
   });
 }
