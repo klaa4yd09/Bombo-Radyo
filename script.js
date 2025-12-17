@@ -337,10 +337,16 @@ const ALL_FEEDS = {
 
   International: [
     { url: "https://www.aljazeera.com/xml/rss/all.xml", source: "Al Jazeera" },
+    {
+      url: "https://www.cnbc.com/id/100727362/device/rss/rss.html",
+      source: "CNBC World",
+    },
     { url: "https://www.france24.com/en/rss", source: "France 24" },
-    { url: "https://www.dw.com/xml/rss-en-world", source: "Deutsche Welle" },
-    { url: "https://www.theguardian.com/world/rss", source: "The Guardian" },
-    { url: "https://feeds.bbci.co.uk/news/world/rss.xml", source: "BBC World" },
+    { url: "https://rss.dw.com/rdf/rss-en-world", source: "DW News" },
+    {
+      url: "https://fulltextrssfeed.com/www.aljazeera.com/xml/rss/all.xml",
+      source: "Global Echo",
+    },
   ],
 };
 
@@ -514,6 +520,7 @@ if ("serviceWorker" in navigator) {
       });
   });
 }
+
 
 
 
