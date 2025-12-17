@@ -1,11 +1,22 @@
 // --- Configuration ---
+// ===============================
+// FULL RSS FEED CONFIGURATION (MERGED AND CLEANED)
+// ===============================
 const ALL_FEEDS = {
+  // ===============================
+  // NATIONAL / GENERAL NEWS
+  // ===============================
   "National News": [
     { url: "https://news.abs-cbn.com/feed", source: "ABS-CBN News" },
-    { url: "https://www.inquirer.net/fullfeed", source: "Inquirer" },
+    { url: "https://www.inquirer.net/fullfeed", source: "Inquirer Main" },
+    { url: "https://newsinfo.inquirer.net/feed", source: "Inquirer NewsInfo" },
     {
       url: "https://www.gmanetwork.com/news/rss/news/",
       source: "GMA News Online",
+    },
+    {
+      url: "https://www.gmanetwork.com/news/rss/regions/",
+      source: "GMA Regional",
     },
     {
       url: "https://www.philstar.com/rss/headlines",
@@ -13,6 +24,14 @@ const ALL_FEEDS = {
     },
     { url: "https://mb.com.ph/feed/", source: "Manila Bulletin" },
     { url: "https://www.manilatimes.net/news/feed", source: "Manila Times" },
+    { url: "https://www.ptvnews.ph/feed/", source: "PTV News" },
+    { url: "https://www.untvweb.com/feed/", source: "UNTV News" },
+    {
+      url: "https://www.pna.gov.ph/rss",
+      source: "Philippine News Agency (PNA)",
+    },
+    { url: "https://www.rappler.com/feed/", source: "Rappler Main" },
+    { url: "https://www.sunstar.com.ph/rss", source: "SunStar Philippines" },
     {
       url: "https://www.bomboradyo.com/category/national-news/feed/",
       source: "Bombo Radyo Nation",
@@ -23,18 +42,23 @@ const ALL_FEEDS = {
     },
     { url: "https://rmn.ph/feed/", source: "RMN Networks" },
     { url: "https://www.journalnews.com.ph/feed/", source: "People's Journal" },
-
-    // NEW
-    { url: "https://www.ptvnews.ph/feed/", source: "PTV News" },
-    { url: "https://www.untvweb.com/feed/", source: "UNTV News" },
     {
-      url: "https://www.gmanetwork.com/news/rss/regions/",
-      source: "GMA Regional",
-    },
+      url: "https://feeds.bbci.co.uk/news/world/rss.xml",
+      source: "BBC World News",
+    }, // Note: Duplicated feeds below removed
+    { url: "https://rss.cnn.com/rss/edition.rss", source: "CNN World" },
+    { url: "https://www.aljazeera.com/xml/rss/all.xml", source: "Al Jazeera" },
   ],
 
-  "Business/Economy": [
+  // ===============================
+  // BUSINESS / ECONOMY
+  // ===============================
+  "Business / Economy": [
     { url: "https://www.philstar.com/rss/money", source: "Philstar Business" },
+    {
+      url: "https://www.philstar.com/rss/business",
+      source: "Philstar Economy",
+    },
     { url: "https://businessmirror.com.ph/feed/", source: "BusinessMirror" },
     {
       url: "https://www.manilatimes.net/business/feed",
@@ -46,18 +70,41 @@ const ALL_FEEDS = {
       source: "Rappler Business",
     },
     { url: "https://www.bworldonline.com/feed/", source: "BusinessWorld" },
+    {
+      url: "https://www.cnnphilippines.com/business/rss",
+      source: "CNN Philippines Business",
+    },
+    {
+      url: "https://www.bsp.gov.ph/rss/MediaList.xml",
+      source: "Bangko Sentral ng Pilipinas",
+    },
+    {
+      url: "https://www.reuters.com/rssFeed/businessNews",
+      source: "Reuters Business",
+    },
+    { url: "https://asia.nikkei.com/rss/feed/nar", source: "Nikkei Asia" },
   ],
 
+  // ===============================
+  // SPORTS
+  // This section merges the two 'Sports' definitions from your original input
+  // ===============================
   Sports: [
+    { url: "https://www.espn.com/espn/rss/news", source: "ESPN General" },
+    { url: "https://sports.inquirer.net/feed", source: "Inquirer Sports" },
+    {
+      url: "https://www.gmanetwork.com/news/rss/sports/",
+      source: "GMA Sports",
+    },
+    { url: "https://www.rappler.com/sports/feed/", source: "Rappler Sports" },
     {
       url: "https://www.abs-cbn.com/sports/rss/latest-news",
       source: "ABS-CBN Sports",
     },
     {
       url: "https://nba.nbcsports.com/category/top-posts/feed/",
-      source: "NBC Sports",
+      source: "NBC Sports NBA",
     },
-    { url: "https://www.rappler.com/sports/feed/", source: "Rappler Sports" },
     {
       url: "https://www.bomboradyo.com/category/sports/feed/",
       source: "Bombo Radyo Sports",
@@ -75,6 +122,9 @@ const ALL_FEEDS = {
     },
   ],
 
+  // ===============================
+  // SHOWBIZ
+  // ===============================
   Showbiz: [
     {
       url: "https://www.abs-cbn.com/entertainment/rss/latest-news",
@@ -93,6 +143,25 @@ const ALL_FEEDS = {
     { url: "https://www.pikapika.ph/feed", source: "Pikapika" },
   ],
 
+  // ===============================
+  // TECHNOLOGY
+  // ===============================
+  Technology: [
+    { url: "https://www.rappler.com/technology/feed/", source: "Rappler Tech" },
+    {
+      url: "https://www.gmanetwork.com/news/rss/scitech/",
+      source: "GMA SciTech",
+    },
+    { url: "https://www.theverge.com/rss/index.xml", source: "The Verge" },
+    {
+      url: "https://feeds.arstechnica.com/arstechnica/index",
+      source: "Ars Technica",
+    },
+  ],
+
+  // ===============================
+  // BALITANG ESPESYAL / SPECIAL REPORTS
+  // ===============================
   "Balitang Espesyal": [
     {
       url: "https://www.bomboradyo.com/category/balitang-espesyal/feed/",
@@ -100,25 +169,11 @@ const ALL_FEEDS = {
     },
   ],
 
-  General: [
-    { url: "https://www.rappler.com/rss", source: "Rappler Main" },
-    {
-      url: "https://www.brigadanews.ph/category/local-news/feed/",
-      source: "Brigada Local",
-    },
-    {
-      url: "https://rmn.ph/category/police-report/feed/",
-      source: "RMN Police Report",
-    },
-    { url: "https://www.sunstar.com.ph/rss/cebu", source: "SunStar Cebu" },
-    { url: "https://www.sunstar.com.ph/rss/davao", source: "SunStar Davao" },
-
-    // NEW
-    { url: "https://www.rappler.com/technology/feed/", source: "Rappler Tech" },
-  ],
-
-  // *** START NEW CATEGORY: Social Links (Special Hardcoded List) ***
-  Local: {
+  // ===============================
+  // LOCAL (Social Links - Special Hardcoded List)
+  // ===============================
+  "Local Links": {
+    // Renamed category to avoid confusion with 'General / Local'
     isSocialMedia: true,
     items: [
       {
@@ -138,8 +193,10 @@ const ALL_FEEDS = {
       },
     ],
   },
-  // *** END NEW CATEGORY ***
 
+  // ===============================
+  // INTERNATIONAL
+  // ===============================
   International: [
     {
       url: "https://feeds.bbci.co.uk/news/world/rss.xml",
@@ -157,8 +214,6 @@ const ALL_FEEDS = {
       source: "Bombo Radyo World",
     },
     { url: "https://www.rappler.com/world/feed/", source: "Rappler World" },
-
-    // NEW
     {
       url: "https://apnews.com/apf-topnews?format=rss",
       source: "Associated Press",
@@ -230,6 +285,7 @@ async function fetchNews(isManual = false) {
   }
   // --- RSS FEED HANDLER ---
   else {
+    // Check if categoryData is an array (for regular RSS feeds)
     const feeds = Array.isArray(categoryData) ? categoryData : [];
 
     const promises = feeds.map((feed) =>
@@ -306,7 +362,9 @@ createCategoryButtons();
 fetchNews();
 // Only run interval for automatic fetch if the category is not Social Links
 setInterval(() => {
-  if (!ALL_FEEDS[activeCategory].isSocialMedia) {
+  const categoryData = ALL_FEEDS[activeCategory];
+  // FIX: Check if categoryData exists AND if isSocialMedia is NOT true
+  if (categoryData && !categoryData.isSocialMedia) {
     fetchNews(false);
   }
 }, 20 * 60 * 1000);
