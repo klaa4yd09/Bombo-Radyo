@@ -221,9 +221,38 @@ const ALL_FEEDS = {
       url: "https://www.brigadanews.ph/category/showbiz/feed/",
       source: "Brigada Showbiz",
     },
-    { url: "https://rmn.ph/category/showbiz/feed/", source: "RMN Showbiz" },
-    { url: "https://www.pep.ph/feed/", source: "PEP.ph" },
-    { url: "https://www.pikapika.ph/feed", source: "Pikapika" },
+    {
+      url: "https://rmn.ph/category/showbiz/feed/",
+      source: "RMN Showbiz",
+    },
+    {
+      url: "https://www.pep.ph/feed/",
+      source: "PEP.ph",
+    },
+    {
+      url: "https://www.pikapika.ph/feed",
+      source: "Pikapika",
+    },
+    {
+      url: "https://www.philstar.com/rss/showbiz/",
+      source: "Philstar.com Showbiz",
+    },
+    {
+      url: "https://www.gmanetwork.com/news/rss/showbiz/",
+      source: "GMA News Online Showbiz",
+    },
+    {
+      url: "https://mb.com.ph/category/entertainment/feed/",
+      source: "Manila Bulletin Entertainment",
+    },
+    {
+      url: "https://entertainment.inquirer.net/feed",
+      source: "Inquirer.net Entertainment",
+    },
+    {
+      url: "https://bandera.inquirer.net/feed",
+      source: "Inquirer Bandera",
+    },
   ],
 
   // ===============================
