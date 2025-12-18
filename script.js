@@ -359,7 +359,6 @@ let cachedNews = [];
 const BASE_API_URL = `https://api.rss2json.com/v1/api.json?rss_url=`;
 
 // --- UI HELPERS ---
-
 function showToast(message) {
   const existing = document.querySelector(".toast");
   if (existing) existing.remove();
@@ -382,11 +381,9 @@ function calculateReadingTime(text) {
 }
 
 // --- DATA FETCHING ---
-
 async function fetchNews(isManual = false) {
   const container = document.getElementById("news-container");
 
-  // Show Skeletons
   container.innerHTML = Array(8)
     .fill('<li class="news-item skeleton" style="height:200px"></li>')
     .join("");
@@ -394,7 +391,6 @@ async function fetchNews(isManual = false) {
 
   const categoryData = ALL_FEEDS[activeCategory];
 
-  // Handle Local Links (Static Array)
   if (categoryData && categoryData.isSocialMedia) {
     cachedNews = categoryData.items.map((item) => ({
       title: item.title,
@@ -408,7 +404,6 @@ async function fetchNews(isManual = false) {
     return;
   }
 
-  // Handle RSS Feeds
   try {
     const promises = categoryData.map((feed) =>
       fetch(`${BASE_API_URL}${encodeURIComponent(feed.url)}`)
@@ -425,9 +420,9 @@ async function fetchNews(isManual = false) {
     cachedNews = results
       .flat()
       .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
     renderNews(cachedNews);
     updateStatus(`${cachedNews.length} headlines live`);
+    applyFilters(); // apply filter after fetch
     if (isManual) showToast("Feed refreshed");
   } catch (error) {
     showToast("Network error. Try again.");
@@ -435,21 +430,18 @@ async function fetchNews(isManual = false) {
   }
 }
 
+// --- RENDERING ---
 function renderNews(items) {
   const container = document.getElementById("news-container");
   container.innerHTML = "";
-
-  if (items.length === 0) {
+  if (!items.length) {
     container.innerHTML = `<li style="grid-column: 1/-1; text-align:center; padding: 3rem;">No results found.</li>`;
     return;
   }
 
-  // 1. Update Featured Card with the newest item
   updateFeaturedCard(items[0]);
 
-  // 2. Render Grid (Skip the first one since it's featured, or keep it—here we keep all)
   const fragment = document.createDocumentFragment();
-
   items.forEach((item) => {
     const timeStr = new Date(item.pubDate).toLocaleTimeString("en-PH", {
       hour: "2-digit",
@@ -463,15 +455,15 @@ function renderNews(items) {
     const li = document.createElement("li");
     li.className = "news-item";
     li.innerHTML = `
-            <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
-            <div class="news-meta">
-                <span class="source-tag">${item.sourceTitle}</span>
-                <div style="display:flex; flex-direction:column; align-items:flex-end;">
-                  <span>${dateStr}</span>
-                  <span style="opacity:0.7">${timeStr}</span>
-                </div>
-            </div>
-        `;
+      <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
+      <div class="news-meta">
+        <span class="source-tag">${item.sourceTitle}</span>
+        <div style="display:flex; flex-direction:column; align-items:flex-end;">
+          <span>${dateStr}</span>
+          <span style="opacity:0.7">${timeStr}</span>
+        </div>
+      </div>
+    `;
     fragment.appendChild(li);
   });
 
@@ -480,14 +472,12 @@ function renderNews(items) {
 
 function updateFeaturedCard(item) {
   if (!item) return;
-
   const featuredSection = document.querySelector(".featured-card");
   const titleEl = featuredSection.querySelector(".featured-title");
   const excerptEl = featuredSection.querySelector(".featured-excerpt");
   const sourceEl = featuredSection.querySelector(".source-tag");
   const readTimeEl = featuredSection.querySelector(".reading-time");
 
-  // Remove HTML tags from description for excerpt
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML =
     item.description || "Click to read the full story on the official website.";
@@ -498,23 +488,11 @@ function updateFeaturedCard(item) {
   sourceEl.textContent = item.sourceTitle;
   readTimeEl.textContent = calculateReadingTime(plainText);
 
-  // Make featured card clickable
   featuredSection.style.cursor = "pointer";
   featuredSection.onclick = () => window.open(item.link, "_blank");
 }
 
-// --- CONTROLS ---
-
-document.getElementById("news-search").addEventListener("input", (e) => {
-  const term = e.target.value.toLowerCase();
-  const filtered = cachedNews.filter(
-    (n) =>
-      n.title.toLowerCase().includes(term) ||
-      n.sourceTitle.toLowerCase().includes(term)
-  );
-  renderNews(filtered);
-});
-
+// --- CATEGORY CONTROLS ---
 function initCategories() {
   const nav = document.getElementById("category-buttons");
   Object.keys(ALL_FEEDS).forEach((cat) => {
@@ -529,6 +507,7 @@ function initCategories() {
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       document.getElementById("news-search").value = "";
+      document.getElementById("source-filter").value = "";
       fetchNews();
     };
     nav.appendChild(btn);
@@ -537,6 +516,48 @@ function initCategories() {
 
 document.getElementById("refresh-button").onclick = () => fetchNews(true);
 
-// Start App
+// --- SEARCH + SOURCE FILTER ---
+function initSourceFilter() {
+  const sourceSet = new Set();
+  Object.values(ALL_FEEDS).forEach((category) => {
+    if (category.isSocialMedia) {
+      category.items.forEach((item) => sourceSet.add(item.source));
+    } else {
+      category.forEach((feed) => sourceSet.add(feed.source));
+    }
+  });
+
+  const filter = document.getElementById("source-filter");
+  sourceSet.forEach((source) => {
+    const option = document.createElement("option");
+    option.value = source;
+    option.textContent = source;
+    filter.appendChild(option);
+  });
+
+  filter.addEventListener("change", applyFilters);
+}
+
+function applyFilters() {
+  const searchTerm = document.getElementById("news-search").value.toLowerCase();
+  const selectedSource = document.getElementById("source-filter").value;
+
+  const filtered = cachedNews.filter((item) => {
+    const matchesText =
+      item.title.toLowerCase().includes(searchTerm) ||
+      (item.description && item.description.toLowerCase().includes(searchTerm));
+    const matchesSource = selectedSource
+      ? item.sourceTitle === selectedSource
+      : true;
+    return matchesText && matchesSource;
+  });
+
+  renderNews(filtered);
+}
+
+document.getElementById("news-search").addEventListener("input", applyFilters);
+
+// --- INIT ---
 initCategories();
+initSourceFilter();
 fetchNews();
