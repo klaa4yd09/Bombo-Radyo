@@ -42,12 +42,18 @@
         </div>
 
         <div class="header-actions">
+          <!-- Search Input -->
           <input
             type="search"
             id="news-search"
             placeholder="Search headlines…"
             aria-label="Search news headlines"
           />
+
+          <!-- Source Filter Dropdown -->
+          <select id="source-filter" aria-label="Filter by media source">
+            <option value="">All Sources</option>
+          </select>
 
           <button id="refresh-button" aria-label="Refresh news">
             <span class="icon">🔄</span>
