@@ -12,11 +12,11 @@
     <!-- Favicon -->
     <link rel="icon" href="profile.jpg" />
 
-    <!-- Google Fonts (Optimized) -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
 
@@ -42,18 +42,16 @@
         </div>
 
         <div class="header-actions">
-          <div class="search-container">
-            <input
-              type="search"
-              id="news-search"
-              placeholder="Search headlines…"
-              aria-label="Search news headlines"
-            />
-          </div>
+          <input
+            type="search"
+            id="news-search"
+            placeholder="Search headlines…"
+            aria-label="Search news headlines"
+          />
 
           <button id="refresh-button" aria-label="Refresh news">
             <span class="icon">🔄</span>
-            <span class="btn-text">Refresh</span>
+            Refresh
           </button>
         </div>
       </div>
@@ -71,15 +69,41 @@
         aria-label="News categories"
       ></nav>
 
+      <!-- ================= FEATURED HEADLINE ================= -->
+      <section class="featured-news" aria-label="Featured headline">
+        <article class="featured-card">
+          <div class="featured-content">
+            <span class="featured-badge">Featured</span>
+
+            <h2 class="featured-title">
+              Major National Headline Goes Here With Strong Visual Emphasis
+            </h2>
+
+            <p class="featured-excerpt">
+              A short summary of the featured news article that gives context
+              and encourages users to read more without overwhelming them.
+            </p>
+
+            <div class="featured-meta">
+              <span class="source-tag">Bombo Radyo</span>
+              <span class="reading-time">5 min read</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- ================= NEWS GRID ================= -->
       <section class="news-grid-wrapper">
-        <ul id="news-container" aria-live="polite" aria-busy="false"></ul>
+        <ul id="news-container" aria-live="polite" aria-busy="false">
+          <!-- JS inserts news cards here -->
+        </ul>
       </section>
     </main>
 
     <!-- ================= TOAST ================= -->
     <div id="toast-container" aria-live="assertive"></div>
 
-    <!-- Scripts -->
+    <!-- Script -->
     <script src="script.js" defer></script>
   </body>
 </html>
