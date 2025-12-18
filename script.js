@@ -354,44 +354,92 @@ const ALL_FEEDS = {
   ],
 };
 
-// --- CONFIGURATION ---
-const BASE_API_URL = `https://api.rss2json.com/v1/api.json?rss_url=`;
-let activeCategory = "National News";
-let cachedNews = [];
+/* =========================================================
+   RSS NEWS AGGREGATOR – PROFESSIONAL EDITION
+   Improved for clarity, safety, performance, and UX polish
+   (NO FEATURES REMOVED)
+========================================================= */
 
-// --- UI HELPERS ---
+// FULL RSS FEED CONFIGURATION
+// (UNCHANGED – your feed architecture is already excellent)
+// ===============================
+// CONFIGURATION
+// FULL RSS FEED CONFIGURATION
+// (UNCHANGED – your feed architecture is already excellent)
+// ===============================
+// CONFIGURATION
+// ===============================
+const BASE_API_URL = `https://api.rss2json.com/v1/api.json?rss_url=`;
+const DEFAULT_CATEGORY = "National News";
+
+let activeCategory = DEFAULT_CATEGORY;
+let cachedNews = [];
+let currentFetchController = null;
+
+// ===============================
+// DOM SHORTCUTS (micro-optimization)
+// ===============================
+const dom = {
+  container: () => document.getElementById("news-container"),
+  refreshBtn: () => document.getElementById("refresh-button"),
+  status: () => document.getElementById("status-message"),
+  search: () => document.getElementById("news-search"),
+  sourceFilter: () => document.getElementById("source-filter"),
+};
+
+// ===============================
+// UI HELPERS
+// ===============================
 function showToast(message) {
-  const existing = document.querySelector(".toast");
-  if (existing) existing.remove();
+  document.querySelector(".toast")?.remove();
+
   const toast = document.createElement("div");
   toast.className = "toast";
   toast.textContent = message;
   document.body.appendChild(toast);
+
   setTimeout(() => toast.remove(), 2500);
 }
 
-function updateStatus(msg) {
-  const statusEl = document.getElementById("status-message");
-  if (statusEl) statusEl.textContent = msg;
+function updateStatus(message) {
+  dom.status()?.replaceChildren(message);
 }
 
-function calculateReadingTime(text) {
-  const words = text ? text.split(/\s+/).length : 50;
-  const minutes = Math.ceil(words / 200);
-  return `${minutes} min read`;
+function calculateReadingTime(text = "") {
+  const wordCount = text.split(/\s+/).length || 50;
+  return `${Math.ceil(wordCount / 200)} min read`;
 }
 
-// --- DATA FETCHING ---
+// ===============================
+// PERFORMANCE UTILITIES
+// ===============================
+function debounce(fn, delay = 300) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
+// ===============================
+// DATA FETCHING
+// ===============================
 async function fetchNews(isManual = false) {
-  const container = document.getElementById("news-container");
-  const refreshBtn = document.getElementById("refresh-button");
+  const container = dom.container();
+  const refreshBtn = dom.refreshBtn();
 
-  if (isManual) refreshBtn.classList.add("spinning");
+  if (!container) return;
 
-  // Skeleton Loading State
+  // Cancel previous fetch if still running
+  currentFetchController?.abort();
+  currentFetchController = new AbortController();
+
+  if (isManual) refreshBtn?.classList.add("spinning");
+
+  // Skeleton loader
   container.innerHTML = Array(8)
     .fill(
-      '<li class="news-item skeleton" style="height:220px; border:none;"></li>'
+      `<li class="news-item skeleton" style="height:220px;border:none;"></li>`
     )
     .join("");
 
@@ -399,8 +447,8 @@ async function fetchNews(isManual = false) {
 
   const categoryData = ALL_FEEDS[activeCategory];
 
-  // Handle Social Media / Static Links
-  if (categoryData && categoryData.isSocialMedia) {
+  // Social / Static Links
+  if (categoryData?.isSocialMedia) {
     cachedNews = categoryData.items.map((item) => ({
       title: item.title,
       link: item.link,
@@ -408,14 +456,17 @@ async function fetchNews(isManual = false) {
       pubDate: new Date().toISOString(),
       description: "Direct link to local broadcast stream.",
     }));
+
     renderNews(cachedNews);
-    if (isManual) refreshBtn.classList.remove("spinning");
+    refreshBtn?.classList.remove("spinning");
     return;
   }
 
   try {
-    const promises = categoryData.map((feed) =>
-      fetch(`${BASE_API_URL}${encodeURIComponent(feed.url)}`)
+    const feeds = categoryData.map((feed) =>
+      fetch(`${BASE_API_URL}${encodeURIComponent(feed.url)}`, {
+        signal: currentFetchController.signal,
+      })
         .then((res) => res.json())
         .then((data) =>
           data.status === "ok"
@@ -425,81 +476,87 @@ async function fetchNews(isManual = false) {
         .catch(() => [])
     );
 
-    const results = await Promise.all(promises);
+    const results = await Promise.all(feeds);
+
     cachedNews = results
       .flat()
-      .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+      .filter((item) => item?.title && item?.link)
+      .sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
 
     renderNews(cachedNews);
     updateStatus(`${cachedNews.length} headlines live`);
     applyFilters();
-  } catch (error) {
+  } catch {
     showToast("Connection error. Try again.");
   } finally {
     if (isManual) {
-      setTimeout(() => refreshBtn.classList.remove("spinning"), 600);
+      setTimeout(() => refreshBtn?.classList.remove("spinning"), 600);
       showToast("Feed refreshed");
     }
   }
 }
 
-// --- RENDERING ---
-function renderNews(items) {
-  const container = document.getElementById("news-container");
+// ===============================
+// RENDERING
+// ===============================
+function renderNews(items = []) {
+  const container = dom.container();
   container.innerHTML = "";
 
   if (!items.length) {
-    container.innerHTML = `<li style="grid-column: 1/-1; text-align:center; padding: 4rem; color: var(--text-muted);">No matching stories found.</li>`;
+    container.innerHTML = `
+      <li style="grid-column:1/-1;text-align:center;padding:4rem;color:var(--text-muted)">
+        No matching stories found.
+      </li>`;
     return;
   }
 
   updateFeaturedCard(items[0]);
 
   const fragment = document.createDocumentFragment();
+
   items.forEach((item) => {
-    // Extract domain for Favicon
     let domain = "";
     try {
       domain = new URL(item.link).hostname;
-    } catch (e) {}
-    const favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+    } catch {}
 
-    const dateObj = new Date(item.pubDate);
-    const dateStr = dateObj.toLocaleDateString("en-PH", {
-      month: "short",
-      day: "numeric",
-    });
-    const timeStr = dateObj.toLocaleTimeString("en-PH", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+    const date = new Date(item.pubDate || Date.now());
 
     const li = document.createElement("li");
     li.className = "news-item";
     li.innerHTML = `
-            <div class="news-content">
-                <div class="source-row">
-                    <img src="${favicon}" class="source-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/21/21601.png'">
-                    <span class="source-tag">${item.sourceTitle}</span>
-                </div>
-                <a href="${
-                  item.link
-                }" target="_blank" rel="noopener" class="news-link">${
-      item.title
-    }</a>
-            </div>
-            <div class="news-meta">
-                <div class="meta-left">
-                    <span class="read-time">${calculateReadingTime(
-                      item.description
-                    )}</span>
-                </div>
-                <div class="meta-right">
-                    <span>${dateStr}</span>
-                    <span style="opacity:0.6; font-size:0.7rem;">${timeStr}</span>
-                </div>
-            </div>
-        `;
+      <div class="news-content">
+        <div class="source-row">
+          <img src="${favicon}" class="source-icon"
+               onerror="this.src='https://cdn-icons-png.flaticon.com/512/21/21601.png'">
+          <span class="source-tag">${item.sourceTitle}</span>
+        </div>
+        <a href="${item.link}" target="_blank" rel="noopener" class="news-link">
+          ${item.title}
+        </a>
+      </div>
+      <div class="news-meta">
+        <div class="meta-left">
+          <span class="read-time">${calculateReadingTime(
+            item.description
+          )}</span>
+        </div>
+        <div class="meta-right">
+          <span>${date.toLocaleDateString("en-PH", {
+            month: "short",
+            day: "numeric",
+          })}</span>
+          <span style="opacity:.6;font-size:.7rem">
+            ${date.toLocaleTimeString("en-PH", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </span>
+        </div>
+      </div>
+    `;
     fragment.appendChild(li);
   });
 
@@ -508,84 +565,93 @@ function renderNews(items) {
 
 function updateFeaturedCard(item) {
   if (!item) return;
-  const featuredSection = document.querySelector(".featured-card");
-  const titleEl = featuredSection.querySelector(".featured-title");
-  const excerptEl = featuredSection.querySelector(".featured-excerpt");
-  const sourceEl = featuredSection.querySelector(".source-tag");
-  const readTimeEl = featuredSection.querySelector(".reading-time");
 
-  const tempDiv = document.createElement("div");
-  tempDiv.innerHTML = item.description || "Click to read the full story.";
-  const plainText = tempDiv.textContent || tempDiv.innerText || "";
+  const featured = document.querySelector(".featured-card");
+  if (!featured) return;
 
-  titleEl.textContent = item.title;
-  excerptEl.textContent = plainText.substring(0, 180) + "...";
-  sourceEl.textContent = item.sourceTitle;
-  readTimeEl.textContent = calculateReadingTime(plainText);
+  const temp = document.createElement("div");
+  temp.innerHTML = item.description || "";
 
-  featuredSection.onclick = () => window.open(item.link, "_blank");
+  featured.querySelector(".featured-title").textContent = item.title;
+  featured.querySelector(".featured-excerpt").textContent =
+    (temp.textContent || "").slice(0, 180) + "...";
+  featured.querySelector(".source-tag").textContent = item.sourceTitle;
+  featured.querySelector(".reading-time").textContent = calculateReadingTime(
+    temp.textContent
+  );
+
+  featured.onclick = () => window.open(item.link, "_blank");
 }
 
-// --- CONTROLS ---
+// ===============================
+// CONTROLS
+// ===============================
 function initCategories() {
   const nav = document.getElementById("category-buttons");
+
   Object.keys(ALL_FEEDS).forEach((cat) => {
     const btn = document.createElement("button");
     btn.textContent = cat;
     btn.className = cat === activeCategory ? "active" : "";
+
     btn.onclick = () => {
       if (activeCategory === cat) return;
+
       activeCategory = cat;
       document
         .querySelectorAll(".category-tabs button")
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-      document.getElementById("news-search").value = "";
-      document.getElementById("source-filter").value = "";
+
+      dom.search().value = "";
+      dom.sourceFilter().value = "";
+
       fetchNews();
     };
+
     nav.appendChild(btn);
   });
 }
 
 function initSourceFilter() {
-  const sourceSet = new Set();
+  const sources = new Set();
+
   Object.values(ALL_FEEDS).forEach((category) => {
     if (category.isSocialMedia) {
-      category.items.forEach((item) => sourceSet.add(item.source));
+      category.items.forEach((i) => sources.add(i.source));
     } else {
-      category.forEach((feed) => sourceSet.add(feed.source));
+      category.forEach((feed) => sources.add(feed.source));
     }
   });
 
-  const filter = document.getElementById("source-filter");
-  sourceSet.forEach((source) => {
-    const option = document.createElement("option");
-    option.value = source;
-    option.textContent = source;
-    filter.appendChild(option);
+  sources.forEach((src) => {
+    const opt = document.createElement("option");
+    opt.value = opt.textContent = src;
+    dom.sourceFilter().appendChild(opt);
   });
-  filter.addEventListener("change", applyFilters);
+
+  dom.sourceFilter().addEventListener("change", applyFilters);
 }
 
 function applyFilters() {
-  const searchTerm = document.getElementById("news-search").value.toLowerCase();
-  const selectedSource = document.getElementById("source-filter").value;
+  const term = dom.search().value.toLowerCase();
+  const source = dom.sourceFilter().value;
 
-  const filtered = cachedNews.filter((item) => {
-    const matchesText = item.title.toLowerCase().includes(searchTerm);
-    const matchesSource = selectedSource
-      ? item.sourceTitle === selectedSource
-      : true;
-    return matchesText && matchesSource;
-  });
+  const filtered = cachedNews.filter(
+    (item) =>
+      item.title.toLowerCase().includes(term) &&
+      (!source || item.sourceTitle === source)
+  );
+
   renderNews(filtered);
 }
 
+// ===============================
+// INIT
+// ===============================
 document.getElementById("refresh-button").onclick = () => fetchNews(true);
-document.getElementById("news-search").addEventListener("input", applyFilters);
+dom.search().addEventListener("input", debounce(applyFilters, 250));
 
-// --- INIT ---
 initCategories();
 initSourceFilter();
 fetchNews();
