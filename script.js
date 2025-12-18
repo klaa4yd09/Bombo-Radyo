@@ -360,25 +360,22 @@ const ALL_FEEDS = {
    (NO FEATURES REMOVED)
 ========================================================= */
 
-// FULL RSS FEED CONFIGURATION
-// (UNCHANGED – your feed architecture is already excellent)
-// ===============================
+// =========================================================
 // CONFIGURATION
-// FULL RSS FEED CONFIGURATION
-// (UNCHANGED – your feed architecture is already excellent)
-// ===============================
-// CONFIGURATION
-// ===============================
+// =========================================================
 const BASE_API_URL = `https://api.rss2json.com/v1/api.json?rss_url=`;
 const DEFAULT_CATEGORY = "National News";
+const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
+const BREAKING_MINUTES = 30;
 
 let activeCategory = DEFAULT_CATEGORY;
 let cachedNews = [];
 let currentFetchController = null;
+let autoRefreshTimer = null;
 
-// ===============================
-// DOM SHORTCUTS (micro-optimization)
-// ===============================
+// =========================================================
+// DOM SHORTCUTS
+// =========================================================
 const dom = {
   container: () => document.getElementById("news-container"),
   refreshBtn: () => document.getElementById("refresh-button"),
@@ -387,17 +384,15 @@ const dom = {
   sourceFilter: () => document.getElementById("source-filter"),
 };
 
-// ===============================
+// =========================================================
 // UI HELPERS
-// ===============================
+// =========================================================
 function showToast(message) {
   document.querySelector(".toast")?.remove();
-
   const toast = document.createElement("div");
   toast.className = "toast";
   toast.textContent = message;
   document.body.appendChild(toast);
-
   setTimeout(() => toast.remove(), 2500);
 }
 
@@ -406,37 +401,57 @@ function updateStatus(message) {
 }
 
 function calculateReadingTime(text = "") {
-  const wordCount = text.split(/\s+/).length || 50;
-  return `${Math.ceil(wordCount / 200)} min read`;
+  const words = text.split(/\s+/).length || 50;
+  return `${Math.ceil(words / 200)} min read`;
 }
 
-// ===============================
+function isBreaking(pubDate) {
+  const diff = (Date.now() - new Date(pubDate).getTime()) / 60000;
+  return diff <= BREAKING_MINUTES;
+}
+
+// =========================================================
 // PERFORMANCE UTILITIES
-// ===============================
+// =========================================================
 function debounce(fn, delay = 300) {
-  let timer;
+  let t;
   return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
   };
 }
 
-// ===============================
+// =========================================================
 // DATA FETCHING
-// ===============================
+// =========================================================
+async function fetchFeed(feed, signal, attempt = 1) {
+  const cacheBuster = `&_=${Date.now()}`;
+  try {
+    const res = await fetch(
+      `${BASE_API_URL}${encodeURIComponent(feed.url)}${cacheBuster}`,
+      { signal }
+    );
+    const data = await res.json();
+    return data.status === "ok"
+      ? data.items.map((item) => ({ ...item, sourceTitle: feed.source }))
+      : [];
+  } catch {
+    // Retry once
+    if (attempt === 1) return fetchFeed(feed, signal, 2);
+    return [];
+  }
+}
+
 async function fetchNews(isManual = false) {
   const container = dom.container();
   const refreshBtn = dom.refreshBtn();
-
   if (!container) return;
 
-  // Cancel previous fetch if still running
   currentFetchController?.abort();
   currentFetchController = new AbortController();
 
   if (isManual) refreshBtn?.classList.add("spinning");
 
-  // Skeleton loader
   container.innerHTML = Array(8)
     .fill(
       `<li class="news-item skeleton" style="height:220px;border:none;"></li>`
@@ -447,7 +462,7 @@ async function fetchNews(isManual = false) {
 
   const categoryData = ALL_FEEDS[activeCategory];
 
-  // Social / Static Links
+  // Social Links
   if (categoryData?.isSocialMedia) {
     cachedNews = categoryData.items.map((item) => ({
       title: item.title,
@@ -456,32 +471,24 @@ async function fetchNews(isManual = false) {
       pubDate: new Date().toISOString(),
       description: "Direct link to local broadcast stream.",
     }));
-
     renderNews(cachedNews);
     refreshBtn?.classList.remove("spinning");
     return;
   }
 
   try {
-    const feeds = categoryData.map((feed) =>
-      fetch(`${BASE_API_URL}${encodeURIComponent(feed.url)}`, {
-        signal: currentFetchController.signal,
-      })
-        .then((res) => res.json())
-        .then((data) =>
-          data.status === "ok"
-            ? data.items.map((item) => ({ ...item, sourceTitle: feed.source }))
-            : []
-        )
-        .catch(() => [])
+    const results = await Promise.all(
+      categoryData.map((feed) => fetchFeed(feed, currentFetchController.signal))
     );
-
-    const results = await Promise.all(feeds);
 
     cachedNews = results
       .flat()
-      .filter((item) => item?.title && item?.link)
-      .sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
+      .filter((i) => i?.title && i?.link)
+      .sort(
+        (a, b) =>
+          new Date(b.pubDate || 0).getTime() -
+          new Date(a.pubDate || 0).getTime()
+      );
 
     renderNews(cachedNews);
     updateStatus(`${cachedNews.length} headlines live`);
@@ -496,9 +503,9 @@ async function fetchNews(isManual = false) {
   }
 }
 
-// ===============================
+// =========================================================
 // RENDERING
-// ===============================
+// =========================================================
 function renderNews(items = []) {
   const container = dom.container();
   container.innerHTML = "";
@@ -521,8 +528,12 @@ function renderNews(items = []) {
       domain = new URL(item.link).hostname;
     } catch {}
 
-    const favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
     const date = new Date(item.pubDate || Date.now());
+    const favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+
+    const breakingBadge = isBreaking(item.pubDate)
+      ? `<span class="breaking-badge">BREAKING</span>`
+      : "";
 
     const li = document.createElement("li");
     li.className = "news-item";
@@ -530,31 +541,28 @@ function renderNews(items = []) {
       <div class="news-content">
         <div class="source-row">
           <img src="${favicon}" class="source-icon"
-               onerror="this.src='https://cdn-icons-png.flaticon.com/512/21/21601.png'">
+            onerror="this.src='https://cdn-icons-png.flaticon.com/512/21/21601.png'">
           <span class="source-tag">${item.sourceTitle}</span>
+          ${breakingBadge}
         </div>
         <a href="${item.link}" target="_blank" rel="noopener" class="news-link">
           ${item.title}
         </a>
       </div>
       <div class="news-meta">
-        <div class="meta-left">
-          <span class="read-time">${calculateReadingTime(
-            item.description
-          )}</span>
-        </div>
-        <div class="meta-right">
-          <span>${date.toLocaleDateString("en-PH", {
+        <span class="read-time">${calculateReadingTime(item.description)}</span>
+        <span>
+          ${date.toLocaleDateString("en-PH", {
             month: "short",
             day: "numeric",
-          })}</span>
-          <span style="opacity:.6;font-size:.7rem">
+          })}
+          <small style="opacity:.6">
             ${date.toLocaleTimeString("en-PH", {
               hour: "2-digit",
               minute: "2-digit",
             })}
-          </span>
-        </div>
+          </small>
+        </span>
       </div>
     `;
     fragment.appendChild(li);
@@ -565,7 +573,6 @@ function renderNews(items = []) {
 
 function updateFeaturedCard(item) {
   if (!item) return;
-
   const featured = document.querySelector(".featured-card");
   if (!featured) return;
 
@@ -583,44 +590,37 @@ function updateFeaturedCard(item) {
   featured.onclick = () => window.open(item.link, "_blank");
 }
 
-// ===============================
+// =========================================================
 // CONTROLS
-// ===============================
+// =========================================================
 function initCategories() {
   const nav = document.getElementById("category-buttons");
-
   Object.keys(ALL_FEEDS).forEach((cat) => {
     const btn = document.createElement("button");
     btn.textContent = cat;
     btn.className = cat === activeCategory ? "active" : "";
-
     btn.onclick = () => {
       if (activeCategory === cat) return;
-
       activeCategory = cat;
       document
         .querySelectorAll(".category-tabs button")
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-
       dom.search().value = "";
       dom.sourceFilter().value = "";
-
       fetchNews();
     };
-
     nav.appendChild(btn);
   });
 }
 
 function initSourceFilter() {
   const sources = new Set();
-
   Object.values(ALL_FEEDS).forEach((category) => {
     if (category.isSocialMedia) {
       category.items.forEach((i) => sources.add(i.source));
     } else {
-      category.forEach((feed) => sources.add(feed.source));
+      category.forEach((f) => sources.add(f.source));
     }
   });
 
@@ -636,22 +636,24 @@ function initSourceFilter() {
 function applyFilters() {
   const term = dom.search().value.toLowerCase();
   const source = dom.sourceFilter().value;
-
-  const filtered = cachedNews.filter(
-    (item) =>
-      item.title.toLowerCase().includes(term) &&
-      (!source || item.sourceTitle === source)
+  renderNews(
+    cachedNews.filter(
+      (i) =>
+        i.title.toLowerCase().includes(term) &&
+        (!source || i.sourceTitle === source)
+    )
   );
-
-  renderNews(filtered);
 }
 
-// ===============================
+// =========================================================
 // INIT
-// ===============================
+// =========================================================
 document.getElementById("refresh-button").onclick = () => fetchNews(true);
 dom.search().addEventListener("input", debounce(applyFilters, 250));
 
 initCategories();
 initSourceFilter();
 fetchNews();
+
+// Auto-refresh
+autoRefreshTimer = setInterval(fetchNews, AUTO_REFRESH_INTERVAL);
