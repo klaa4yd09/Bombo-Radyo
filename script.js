@@ -364,11 +364,22 @@ function updateStatus(msg) {
   document.getElementById("status-message").textContent = msg;
 }
 
+function calculateReadingTime(text) {
+  const wordsPerMinute = 200;
+  const words = text ? text.split(/\s+/).length : 50;
+  const minutes = Math.ceil(words / wordsPerMinute);
+  return `${minutes} min read`;
+}
+
 // --- DATA FETCHING ---
 
 async function fetchNews(isManual = false) {
   const container = document.getElementById("news-container");
-  container.innerHTML = Array(8).fill('<li class="skeleton"></li>').join("");
+
+  // Show Skeletons
+  container.innerHTML = Array(8)
+    .fill('<li class="news-item skeleton" style="height:200px"></li>')
+    .join("");
   updateStatus(`Syncing ${activeCategory}...`);
 
   const categoryData = ALL_FEEDS[activeCategory];
@@ -380,6 +391,7 @@ async function fetchNews(isManual = false) {
       link: item.link,
       sourceTitle: item.source,
       pubDate: new Date().toISOString(),
+      description: "Direct link to local broadcast stream.",
     }));
     renderNews(cachedNews);
     updateStatus(`${cachedNews.length} social links active`);
@@ -406,9 +418,10 @@ async function fetchNews(isManual = false) {
 
     renderNews(cachedNews);
     updateStatus(`${cachedNews.length} headlines live`);
-    if (isManual) showToast("Headlines updated");
+    if (isManual) showToast("Feed refreshed");
   } catch (error) {
     showToast("Network error. Try again.");
+    container.innerHTML = `<li style="grid-column: 1/-1; text-align:center; padding: 3rem;">Unable to load news. Check your connection.</li>`;
   }
 }
 
@@ -420,6 +433,12 @@ function renderNews(items) {
     container.innerHTML = `<li style="grid-column: 1/-1; text-align:center; padding: 3rem;">No results found.</li>`;
     return;
   }
+
+  // 1. Update Featured Card with the newest item
+  updateFeaturedCard(items[0]);
+
+  // 2. Render Grid (Skip the first one since it's featured, or keep it—here we keep all)
+  const fragment = document.createDocumentFragment();
 
   items.forEach((item) => {
     const timeStr = new Date(item.pubDate).toLocaleTimeString("en-PH", {
@@ -437,11 +456,41 @@ function renderNews(items) {
             <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
             <div class="news-meta">
                 <span class="source-tag">${item.sourceTitle}</span>
-                <span>${dateStr} • ${timeStr}</span>
+                <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                  <span>${dateStr}</span>
+                  <span style="opacity:0.7">${timeStr}</span>
+                </div>
             </div>
         `;
-    container.appendChild(li);
+    fragment.appendChild(li);
   });
+
+  container.appendChild(fragment);
+}
+
+function updateFeaturedCard(item) {
+  if (!item) return;
+
+  const featuredSection = document.querySelector(".featured-card");
+  const titleEl = featuredSection.querySelector(".featured-title");
+  const excerptEl = featuredSection.querySelector(".featured-excerpt");
+  const sourceEl = featuredSection.querySelector(".source-tag");
+  const readTimeEl = featuredSection.querySelector(".reading-time");
+
+  // Remove HTML tags from description for excerpt
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML =
+    item.description || "Click to read the full story on the official website.";
+  const plainText = tempDiv.textContent || tempDiv.innerText || "";
+
+  titleEl.textContent = item.title;
+  excerptEl.textContent = plainText.substring(0, 160) + "...";
+  sourceEl.textContent = item.sourceTitle;
+  readTimeEl.textContent = calculateReadingTime(plainText);
+
+  // Make featured card clickable
+  featuredSection.style.cursor = "pointer";
+  featuredSection.onclick = () => window.open(item.link, "_blank");
 }
 
 // --- CONTROLS ---
