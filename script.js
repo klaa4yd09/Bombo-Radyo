@@ -326,6 +326,16 @@ const ALL_FEEDS = {
         link: "https://www.facebook.com/juanderradyomalaybalay",
         source: "Juander Radio",
       },
+      {
+        title: "BOMBO RADYO PHILIPPINES ",
+        link: "https://www.facebook.com/bomboradyophilippinesy",
+        source: "BOMBO RADYO PHILIPPINES",
+      },
+      {
+        title: "BOMBO RADYO DAVAO",
+        link: "https://www.facebook.com/BomboRadyoDavao",
+        source: "BOMBO RADYO DAVAO",
+      },
     ],
   },
 
