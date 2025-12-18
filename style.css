@@ -62,7 +62,7 @@ header {
   margin: 0 auto;
   padding: 0.75rem 1.25rem;
   display: flex;
-  flex-wrap: wrap; /* Allows wrapping on very small screens */
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
@@ -102,7 +102,7 @@ header {
   display: flex;
   gap: 0.5rem;
   flex: 1;
-  min-width: 280px; /* Prevents input from getting too tiny */
+  min-width: 280px;
   max-width: 500px;
 }
 
@@ -117,6 +117,21 @@ header {
 }
 
 #news-search:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+#source-filter {
+  padding: 0.55rem 0.9rem;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  font-size: 0.9rem;
+  background: white;
+  transition: var(--transition);
+}
+
+#source-filter:focus {
   outline: none;
   border-color: var(--primary-light);
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
@@ -143,6 +158,18 @@ header {
   transform: translateY(-1px);
 }
 
+/* ================= STATUS BAR ================= */
+.status-bar {
+  text-align: center;
+  padding: 0.5rem;
+  background: #f1f5f9;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 /* ================= CATEGORY TABS ================= */
 .category-tabs {
   max-width: 1200px;
@@ -151,11 +178,11 @@ header {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
-  scrollbar-width: none; /* Hide scrollbar Firefox */
+  scrollbar-width: none;
 }
 
 .category-tabs::-webkit-scrollbar {
-  display: none; /* Hide scrollbar Chrome/Safari */
+  display: none;
 }
 
 .category-tabs button {
@@ -196,6 +223,13 @@ main {
   box-shadow: var(--shadow-md);
   overflow: hidden;
   border: 1px solid rgba(30, 64, 175, 0.1);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.featured-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
 
 .featured-content {
@@ -236,11 +270,17 @@ main {
   overflow: hidden;
 }
 
+.featured-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
 /* ================= NEWS GRID ================= */
 #news-container {
   list-style: none;
   display: grid;
-  /* Adaptive grid: 1 column mobile, 2 tablet, 3 desktop */
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
   gap: 1.5rem;
 }
@@ -269,7 +309,6 @@ main {
   text-decoration: none;
   margin-bottom: 1rem;
   line-height: 1.4;
-  /* Multi-line truncation */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
@@ -312,18 +351,7 @@ main {
   100% { background-position: -200% 0; }
 }
 
-/* ================= STATUS BAR & TOAST ================= */
-.status-bar {
-  text-align: center;
-  padding: 0.5rem;
-  background: #f1f5f9;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
+/* ================= TOAST ================= */
 .toast {
   position: fixed;
   bottom: 1.5rem;
@@ -349,7 +377,8 @@ main {
 @media (max-width: 600px) {
   .header-actions {
     min-width: 100%;
-    order: 3; /* Move search below branding on mobile */
+    order: 3;
+    flex-wrap: wrap;
   }
   
   .header-content {
