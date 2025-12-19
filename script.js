@@ -361,21 +361,17 @@ const ALL_FEEDS = {
 ========================================================= */
 
 // =========================================================
-// CONFIGURATION
+// CORE ENGINE
 // =========================================================
 const BASE_API_URL = `https://api.rss2json.com/v1/api.json?rss_url=`;
 const DEFAULT_CATEGORY = "National News";
-const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
+const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000;
 const BREAKING_MINUTES = 30;
 
 let activeCategory = DEFAULT_CATEGORY;
 let cachedNews = [];
 let currentFetchController = null;
-let autoRefreshTimer = null;
 
-// =========================================================
-// DOM SHORTCUTS
-// =========================================================
 const dom = {
   container: () => document.getElementById("news-container"),
   refreshBtn: () => document.getElementById("refresh-button"),
@@ -385,10 +381,11 @@ const dom = {
 };
 
 // =========================================================
-// UI HELPERS
+// FUNCTIONS
 // =========================================================
 function showToast(message) {
-  document.querySelector(".toast")?.remove();
+  const existing = document.querySelector(".toast");
+  if (existing) existing.remove();
   const toast = document.createElement("div");
   toast.className = "toast";
   toast.textContent = message;
@@ -396,23 +393,16 @@ function showToast(message) {
   setTimeout(() => toast.remove(), 2500);
 }
 
-function updateStatus(message) {
-  dom.status()?.replaceChildren(message);
-}
-
 function calculateReadingTime(text = "") {
-  const words = text.split(/\s+/).length || 50;
+  const words = text.replace(/<[^>]*>/g, "").split(/\s+/).length || 50;
   return `${Math.ceil(words / 200)} min read`;
 }
 
 function isBreaking(pubDate) {
   const diff = (Date.now() - new Date(pubDate).getTime()) / 60000;
-  return diff <= BREAKING_MINUTES;
+  return diff > 0 && diff <= BREAKING_MINUTES;
 }
 
-// =========================================================
-// PERFORMANCE UTILITIES
-// =========================================================
 function debounce(fn, delay = 300) {
   let t;
   return (...args) => {
@@ -421,239 +411,170 @@ function debounce(fn, delay = 300) {
   };
 }
 
-// =========================================================
-// DATA FETCHING
-// =========================================================
-async function fetchFeed(feed, signal, attempt = 1) {
-  const cacheBuster = `&_=${Date.now()}`;
+async function fetchFeed(feed, signal) {
   try {
     const res = await fetch(
-      `${BASE_API_URL}${encodeURIComponent(feed.url)}${cacheBuster}`,
+      `${BASE_API_URL}${encodeURIComponent(feed.url)}&_=${Date.now()}`,
       { signal }
     );
     const data = await res.json();
     return data.status === "ok"
-      ? data.items.map((item) => ({ ...item, sourceTitle: feed.source }))
+      ? data.items.map((i) => ({ ...i, sourceTitle: feed.source }))
       : [];
   } catch {
-    // Retry once
-    if (attempt === 1) return fetchFeed(feed, signal, 2);
     return [];
   }
 }
 
 async function fetchNews(isManual = false) {
   const container = dom.container();
-  const refreshBtn = dom.refreshBtn();
   if (!container) return;
 
   currentFetchController?.abort();
   currentFetchController = new AbortController();
 
-  if (isManual) refreshBtn?.classList.add("spinning");
-
-  container.innerHTML = Array(8)
-    .fill(
-      `<li class="news-item skeleton" style="height:220px;border:none;"></li>`
-    )
+  if (isManual) dom.refreshBtn()?.classList.add("spinning");
+  container.innerHTML = Array(6)
+    .fill(`<li class="news-item skeleton" style="height:200px"></li>`)
     .join("");
 
-  updateStatus(`Syncing ${activeCategory}...`);
+  dom.status().textContent = `Syncing ${activeCategory}...`;
 
   const categoryData = ALL_FEEDS[activeCategory];
 
-  // Social Links
-  if (categoryData?.isSocialMedia) {
+  if (categoryData.isSocialMedia) {
     cachedNews = categoryData.items.map((item) => ({
       title: item.title,
       link: item.link,
       sourceTitle: item.source,
       pubDate: new Date().toISOString(),
-      description: "Direct link to local broadcast stream.",
+      description: "Direct link to broadcast.",
     }));
     renderNews(cachedNews);
-    refreshBtn?.classList.remove("spinning");
-    return;
+  } else {
+    try {
+      const results = await Promise.all(
+        categoryData.map((f) => fetchFeed(f, currentFetchController.signal))
+      );
+      cachedNews = results
+        .flat()
+        .filter((i) => i.title && i.link)
+        .sort(
+          (a, b) =>
+            new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
+        );
+
+      renderNews(cachedNews);
+      applyFilters();
+    } catch (e) {
+      if (e.name !== "AbortError") showToast("Error loading feeds.");
+    }
   }
 
-  try {
-    const results = await Promise.all(
-      categoryData.map((feed) => fetchFeed(feed, currentFetchController.signal))
-    );
-
-    cachedNews = results
-      .flat()
-      .filter((i) => i?.title && i?.link)
-      .sort(
-        (a, b) =>
-          new Date(b.pubDate || 0).getTime() -
-          new Date(a.pubDate || 0).getTime()
-      );
-
-    renderNews(cachedNews);
-    updateStatus(`${cachedNews.length} headlines live`);
-    applyFilters();
-  } catch {
-    showToast("Connection error. Try again.");
-  } finally {
-    if (isManual) {
-      setTimeout(() => refreshBtn?.classList.remove("spinning"), 600);
-      showToast("Feed refreshed");
-    }
+  dom.status().textContent = `${cachedNews.length} headlines live`;
+  if (isManual) {
+    dom.refreshBtn()?.classList.remove("spinning");
+    showToast("Feed updated");
   }
 }
 
-// =========================================================
-// RENDERING
-// =========================================================
-function renderNews(items = []) {
+function renderNews(items) {
   const container = dom.container();
   container.innerHTML = "";
-
   if (!items.length) {
-    container.innerHTML = `
-      <li style="grid-column:1/-1;text-align:center;padding:4rem;color:var(--text-muted)">
-        No matching stories found.
-      </li>`;
+    container.innerHTML = `<li style="grid-column:1/-1; text-align:center; padding:3rem;">No matches.</li>`;
     return;
   }
 
   updateFeaturedCard(items[0]);
 
-  const fragment = document.createDocumentFragment();
-
   items.forEach((item) => {
-    let domain = "";
-    try {
-      domain = new URL(item.link).hostname;
-    } catch {}
-
-    const date = new Date(item.pubDate || Date.now());
+    const date = new Date(item.pubDate);
+    const domain = new URL(item.link).hostname;
     const favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
-
-    const breakingBadge = isBreaking(item.pubDate)
-      ? `<span class="breaking-badge">BREAKING</span>`
-      : "";
 
     const li = document.createElement("li");
     li.className = "news-item";
     li.innerHTML = `
       <div class="news-content">
         <div class="source-row">
-          <img src="${favicon}" class="source-icon"
-            onerror="this.src='https://cdn-icons-png.flaticon.com/512/21/21601.png'">
+          <img src="${favicon}" class="source-icon" onerror="this.style.display='none'">
           <span class="source-tag">${item.sourceTitle}</span>
-          ${breakingBadge}
+          ${
+            isBreaking(item.pubDate)
+              ? '<span class="breaking-badge">BREAKING</span>'
+              : ""
+          }
         </div>
-        <a href="${item.link}" target="_blank" rel="noopener" class="news-link">
-          ${item.title}
-        </a>
+        <a href="${item.link}" target="_blank" class="news-link">${
+      item.title
+    }</a>
       </div>
       <div class="news-meta">
-        <span class="read-time">${calculateReadingTime(item.description)}</span>
-        <span>
-          ${date.toLocaleDateString("en-PH", {
-            month: "short",
-            day: "numeric",
-          })}
-          <small style="opacity:.6">
-            ${date.toLocaleTimeString("en-PH", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </small>
-        </span>
+        <span>${calculateReadingTime(item.description)}</span>
+        <span>${date.toLocaleDateString()}</span>
       </div>
     `;
-    fragment.appendChild(li);
+    container.appendChild(li);
   });
-
-  container.appendChild(fragment);
 }
 
 function updateFeaturedCard(item) {
-  if (!item) return;
-  const featured = document.querySelector(".featured-card");
-  if (!featured) return;
-
-  const temp = document.createElement("div");
-  temp.innerHTML = item.description || "";
-
-  featured.querySelector(".featured-title").textContent = item.title;
-  featured.querySelector(".featured-excerpt").textContent =
-    (temp.textContent || "").slice(0, 180) + "...";
-  featured.querySelector(".source-tag").textContent = item.sourceTitle;
-  featured.querySelector(".reading-time").textContent = calculateReadingTime(
-    temp.textContent
-  );
-
-  featured.onclick = () => window.open(item.link, "_blank");
+  const card = document.querySelector(".featured-card");
+  if (!card || !item) return;
+  card.querySelector(".featured-title").textContent = item.title;
+  const cleanDesc =
+    item.description.replace(/<[^>]*>/g, "").slice(0, 160) + "...";
+  card.querySelector(".featured-excerpt").textContent = cleanDesc;
+  card.querySelector(".source-tag").textContent = item.sourceTitle;
+  card.onclick = () => window.open(item.link, "_blank");
 }
 
-// =========================================================
-// CONTROLS
-// =========================================================
-function initCategories() {
+function applyFilters() {
+  const term = dom.search().value.toLowerCase();
+  const source = dom.sourceFilter().value;
+  const filtered = cachedNews.filter(
+    (i) =>
+      i.title.toLowerCase().includes(term) &&
+      (!source || i.sourceTitle === source)
+  );
+  renderNews(filtered);
+}
+
+function init() {
   const nav = document.getElementById("category-buttons");
   Object.keys(ALL_FEEDS).forEach((cat) => {
     const btn = document.createElement("button");
     btn.textContent = cat;
     btn.className = cat === activeCategory ? "active" : "";
     btn.onclick = () => {
-      if (activeCategory === cat) return;
       activeCategory = cat;
       document
         .querySelectorAll(".category-tabs button")
-        .forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      dom.search().value = "";
-      dom.sourceFilter().value = "";
+        .forEach((b) => b.classList.toggle("active", b.textContent === cat));
       fetchNews();
     };
     nav.appendChild(btn);
   });
-}
 
-function initSourceFilter() {
   const sources = new Set();
-  Object.values(ALL_FEEDS).forEach((category) => {
-    if (category.isSocialMedia) {
-      category.items.forEach((i) => sources.add(i.source));
-    } else {
-      category.forEach((f) => sources.add(f.source));
-    }
-  });
-
-  sources.forEach((src) => {
+  Object.values(ALL_FEEDS).forEach((v) =>
+    v.isSocialMedia
+      ? v.items.forEach((i) => sources.add(i.source))
+      : v.forEach((f) => sources.add(f.source))
+  );
+  sources.forEach((s) => {
     const opt = document.createElement("option");
-    opt.value = opt.textContent = src;
+    opt.value = opt.textContent = s;
     dom.sourceFilter().appendChild(opt);
   });
 
-  dom.sourceFilter().addEventListener("change", applyFilters);
+  dom.refreshBtn().onclick = () => fetchNews(true);
+  dom.search().oninput = debounce(applyFilters);
+  dom.sourceFilter().onchange = applyFilters;
+
+  fetchNews();
+  setInterval(fetchNews, AUTO_REFRESH_INTERVAL);
 }
 
-function applyFilters() {
-  const term = dom.search().value.toLowerCase();
-  const source = dom.sourceFilter().value;
-  renderNews(
-    cachedNews.filter(
-      (i) =>
-        i.title.toLowerCase().includes(term) &&
-        (!source || i.sourceTitle === source)
-    )
-  );
-}
-
-// =========================================================
-// INIT
-// =========================================================
-document.getElementById("refresh-button").onclick = () => fetchNews(true);
-dom.search().addEventListener("input", debounce(applyFilters, 250));
-
-initCategories();
-initSourceFilter();
-fetchNews();
-
-// Auto-refresh
-autoRefreshTimer = setInterval(fetchNews, AUTO_REFRESH_INTERVAL);
+init();
