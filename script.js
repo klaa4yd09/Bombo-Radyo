@@ -189,6 +189,19 @@ const ALL_FEEDS = {
       url: "https://www.cbssports.com/rss/headlines/",
       source: "CBS Sports (General)",
     },
+    /* Official Government & Major Broadsheets */
+{ url: "https://www.pna.gov.ph/rss/categories/sports", source: "Philippine News Agency (PNA)" },
+{ url: "https://www.manilatimes.net/sports/feed", source: "The Manila Times Sports" },
+{ url: "https://mb.com.ph/rss/sports", source: "Manila Bulletin Sports" },
+{ url: "https://manilastandard.net/category/sports/feed", source: "Manila Standard Sports" },
+{ url: "https://www.bworldonline.com/sports/feed/", source: "BusinessWorld Sports" },
+
+/* Niche & Specialty Sports */
+{ url: "https://fastbreak.com.ph/feed", source: "Fastbreak.com.ph" },
+{ url: "https://thegame-onemega.com/feed", source: "The GAME (One Mega)" },
+{ url: "https://www.sunstar.com.ph/rss/sports", source: "SunStar Philippines Sports" },
+{ url: "https://psc.gov.ph/psc_site/feed", source: "Philippine Sports Commission (Official)" },
+{ url: "https://takbo.ph/feed", source: "Takbo.ph (Running/Marathon)" }
   ],
 
   // ===============================
@@ -578,3 +591,4 @@ function init() {
 }
 
 init();
+
