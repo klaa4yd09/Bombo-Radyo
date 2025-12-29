@@ -74,7 +74,6 @@ header {
     margin: 0 auto;
     padding: 0.75rem 1.25rem;
     display: flex;
-    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
@@ -114,35 +113,16 @@ header {
 .header-actions {
     display: flex;
     gap: 0.5rem;
-    flex: 1;
-    min-width: 250px;
-    max-width: 500px; /* Reduced max-width since one element is removed */
-}
-
-#news-search {
-    padding: 0.6rem 1rem;
-    border-radius: 12px;
-    border: 1.5px solid var(--border);
-    font-size: 0.9rem;
-    background: var(--bg-card);
-    color: var(--text-main);
-    transition: var(--transition);
-    width: 100%; /* Takes up remaining space in the flex container */
-}
-
-#news-search:focus {
-    outline: none;
-    border-color: var(--primary-light);
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 #refresh-button {
     background: var(--primary);
     color: white;
     border: none;
-    padding: 0 1.25rem;
+    padding: 0.6rem 1.5rem; /* Slightly taller for better touch targets */
     border-radius: 12px;
     font-weight: 600;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: var(--transition);
     white-space: nowrap;
@@ -151,6 +131,10 @@ header {
 #refresh-button:hover {
     background: var(--primary-dark);
     transform: translateY(-1px);
+}
+
+#refresh-button:active {
+    transform: translateY(0);
 }
 
 /* ================= STATUS & TABS ================= */
@@ -342,7 +326,6 @@ main {
 
 /* ================= MOBILE ================= */
 @media (max-width: 600px) {
-    .header-content { flex-direction: column; }
-    .header-actions { min-width: 100%; order: 3; }
+    .header-content { flex-direction: row; } /* Keeps brand and button on one line */
     #news-container { grid-template-columns: 1fr; }
 }
