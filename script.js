@@ -44,15 +44,13 @@ const ALL_FEEDS = {
     { url: "https://www.bsp.gov.ph/SitePages/RSS.aspx", source: "Bangko Sentral ng Pilipinas (BSP)" },
   ],
   "Business / Economy": [
-    { url: "https://www.philstar.com/rss/money", source: "Philstar Business" },
-    { url: "https://www.philstar.com/rss/business", source: "Philstar Economy" },
+    { url: "https://www.philstar.com/rss/business", source: "Philstar Business" },
     { url: "https://businessmirror.com.ph/feed/", source: "BusinessMirror" },
     { url: "https://www.manilatimes.net/business/feed", source: "Manila Times Business" },
     { url: "https://www.gmanetwork.com/news/rss/money/", source: "GMA Money" },
     { url: "https://www.rappler.com/business/feed/", source: "Rappler Business" },
     { url: "https://www.bworldonline.com/feed/", source: "BusinessWorld" },
-    { url: "https://www.bsp.gov.ph/rss/MediaList.xml", source: "Bangko Sentral ng Pilipinas" },
-    { url: "https://www.reuters.com/rssFeed/businessNews", source: "Reuters Business" },
+    { url: "https://www.reutersagency.com/feed/?best-topics=business&post_type=best", source: "Reuters Business" },
     { url: "https://asia.nikkei.com/rss/feed/nar", source: "Nikkei Asia" },
   ],
   "Sports": [
@@ -60,17 +58,11 @@ const ALL_FEEDS = {
     { url: "https://sports.inquirer.net/feed", source: "Inquirer Sports" },
     { url: "https://www.gmanetwork.com/news/rss/sports/", source: "GMA Sports" },
     { url: "https://www.rappler.com/sports/feed/", source: "Rappler Sports" },
-    { url: "https://www.abs-cbn.com/sports/rss/latest-news", source: "ABS-CBN Sports" },
-    { url: "https://nba.nbcsports.com/category/top-posts/feed/", source: "NBC Sports NBA" },
-    { url: "https://www.bomboradyo.com/category/sports/feed/", source: "Bombo Radyo Sports" },
     { url: "https://www.philstar.com/rss/sports", source: "Philstar Sports" },
     { url: "https://www.spin.ph/feed", source: "SPIN.ph" },
     { url: "https://tiebreakertimes.com.ph/feed", source: "Tiebreaker Times" },
-    { url: "https://www.espn.com/espn/rss/nba/news", source: "ESPN NBA Headlines" },
-    { url: "https://www.espn.com/espn/rss/soccer/news", source: "ESPN Soccer Headlines" },
-    { url: "https://rss.app/feeds/H3y9L6jQ64f5uMv2.xml", source: "BBC Sport (General)" },
-    { url: "http://feeds.reuters.com/reuters/sportsNews", source: "Reuters Sports News" },
-    { url: "https://www.cbssports.com/rss/headlines/", source: "CBS Sports (General)" },
+    { url: "https://www.bomboradyo.com/category/sports/feed/", source: "Bombo Radyo Sports" },
+    { url: "https://www.cbssports.com/rss/headlines/", source: "CBS Sports" },
   ],
   "Showbiz": [
     { url: "https://www.abs-cbn.com/entertainment/rss/latest-news", source: "ABS-CBN Entertainment" },
@@ -143,7 +135,6 @@ const dom = {
 async function sendToDiscord(item) {
   if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL === "") return;
 
-  // LocalStorage check to prevent duplicate alerts across page refreshes
   let sentHistory = JSON.parse(localStorage.getItem("discord_sent_history") || "[]");
   if (sentHistory.includes(item.link)) return;
 
@@ -174,10 +165,9 @@ async function sendToDiscord(item) {
       sentHistory.push(item.link);
       if (sentHistory.length > 100) sentHistory.shift(); 
       localStorage.setItem("discord_sent_history", JSON.stringify(sentHistory));
-      console.log("Discord alert sent:", item.title);
     }
   } catch (err) {
-    console.warn("Discord Webhook failed. Network error.");
+    console.warn("Discord Webhook failed.");
   }
 }
 
@@ -199,8 +189,11 @@ function debounce(fn, delay = 300) {
 
 async function fetchFeed(feed, signal) {
   try {
-    // Added a random string to prevent browser caching of the RSS data
-    const res = await fetch(`${BASE_API_URL}${encodeURIComponent(feed.url)}&_=${Math.random()}`, { signal });
+    // added cache: "no-store" to bypass browser cache
+    const res = await fetch(`${BASE_API_URL}${encodeURIComponent(feed.url)}&_=${Math.random()}`, { 
+        signal,
+        cache: "no-store" 
+    });
     const data = await res.json();
     return data.status === "ok" ? data.items.map((i) => ({ ...i, sourceTitle: feed.source })) : [];
   } catch {
@@ -243,7 +236,6 @@ async function fetchNews(isManual = false) {
       renderNews(cachedNews);
       applyFilters();
 
-      // DISCORD SYNC: Check the top 3 most recent items
       cachedNews.slice(0, 3).forEach(item => {
         if (isBreaking(item.pubDate)) {
           sendToDiscord(item);
@@ -265,7 +257,7 @@ function renderNews(items) {
   
   container.innerHTML = "";
   if (!items.length) {
-    container.innerHTML = `<li class="no-results">No recent updates found for this filter.</li>`;
+    container.innerHTML = `<li class="no-results">No recent updates found. Some sources may be temporarily down.</li>`;
     return;
   }
 
@@ -340,10 +332,8 @@ function init() {
   if (dom.search()) dom.search().oninput = debounce(applyFilters);
   if (dom.sourceFilter()) dom.sourceFilter().onchange = applyFilters;
 
-  // Start the first fetch
   fetchNews();
 
-  // AUTOMATIC SYNC HEARTBEAT (The "Always Sync" part)
   setInterval(() => {
     fetchNews();
   }, AUTO_REFRESH_INTERVAL);
