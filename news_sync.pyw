@@ -128,7 +128,7 @@ ALL_FEEDS = {
 sent_articles = set()
 
 def check_news():
-    print(f"--- Syncing All Feeds: {time.strftime('%H:%M:%S')} ---")
+    print(f"--- Sync Started: {time.strftime('%Y-%m-%d %H:%M:%S')} ---")
     
     for category, feeds in ALL_FEEDS.items():
         # Handle the dictionary structure of "Local Links" (Skip it as it's not RSS)
@@ -138,22 +138,24 @@ def check_news():
         for feed_info in feeds:
             try:
                 # Use requests with a browser header to fetch the feed
-                response = requests.get(feed_info['url'], headers=HEADERS, timeout=20)
+                # Timeout added to prevent the script from hanging on a slow site
+                response = requests.get(feed_info['url'], headers=HEADERS, timeout=15)
                 feed = feedparser.parse(response.content)
                 
                 if not feed.entries:
                     continue
                 
+                # Get the most recent entry
                 latest = feed.entries[0]
                 article_id = latest.link
                 
                 if article_id not in sent_articles:
-                    print(f"[{category}] New Story: {latest.title}")
+                    print(f"[{category}] Found New: {latest.title}")
                     
                     # Clean description (remove HTML tags with regex)
                     desc = latest.get('summary', 'No description available.')
                     clean_desc = re.sub('<[^<]+?>', '', desc) 
-                    clean_desc = (clean_desc[:200] + '...') if len(clean_desc) > 200 else clean_desc
+                    clean_desc = (clean_desc[:250] + '...') if len(clean_desc) > 250 else clean_desc
 
                     payload = {
                         "username": "News Intelligence Bot",
@@ -166,31 +168,49 @@ def check_news():
                                 {"name": "Source", "value": feed_info['source'], "inline": True},
                                 {"name": "Category", "value": category, "inline": True}
                             ],
-                            "footer": {"text": "Bombo Radyo Intel • Automated Local Sync"},
+                            "footer": {"text": "Bombo Radyo Intel • Automated Live Sync"},
                             "timestamp": time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
                         }]
                     }
                     
-                    requests.post(WEBHOOK_URL, json=payload)
-                    sent_articles.add(article_id)
+                    # Post to Discord
+                    post_res = requests.post(WEBHOOK_URL, json=payload)
+                    
+                    # Only add to sent list if Discord accepted it
+                    if post_res.status_code in [200, 204]:
+                        sent_articles.add(article_id)
                 
-                # Small delay to avoid triggering rate limits
-                time.sleep(0.5)
+                # Respectful delay between individual feed checks
+                time.sleep(0.7)
                 
             except Exception as e:
-                print(f"Error checking {feed_info['source']}: {e}")
+                # Log error but keep the loop running
+                print(f"Skip Error for {feed_info['source']}: {e}")
 
-    # Memory Management
-    if len(sent_articles) > 300:
-        list_articles = list(sent_articles)
+    # Memory Management: Keep the set from growing forever
+    if len(sent_articles) > 1000:
+        sent_list = list(sent_articles)
         sent_articles.clear()
-        for i in list_articles[-150:]:
-            sent_articles.add(i)
+        # Keep the last 500 to prevent duplicates on the next run
+        for item in sent_list[-500:]:
+            sent_articles.add(item)
 
-# Main Loop
+# Main Persistent Loop
 if __name__ == "__main__":
-    print("NewsBot Started Successfully.")
+    print("========================================")
+    print("NEWSBOT: CONTINUOUS SYNC ACTIVE")
+    print("Press Ctrl+C to stop.")
+    print("========================================")
+    
     while True:
-        check_news()
-        print(f"Waiting 10 minutes for next sync...")
-        time.sleep(600)
+        try:
+            check_news()
+            print(f"--- Sync Complete. Next update in 10 minutes. ---")
+            time.sleep(600)  # Wait 10 minutes (600 seconds)
+        except KeyboardInterrupt:
+            print("\nStopping NewsBot...")
+            break
+        except Exception as global_err:
+            print(f"CRITICAL ERROR: {global_err}")
+            print("Restarting sync in 30 seconds...")
+            time.sleep(30)
