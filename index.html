@@ -9,10 +9,8 @@
 
     <title>Bombo Radyo | News Hub</title>
 
-    <!-- Favicon -->
     <link rel="icon" href="profile.jpg" />
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -20,12 +18,10 @@
       rel="stylesheet"
     />
 
-    <!-- Styles -->
     <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
-    <!-- ================= HEADER ================= -->
     <header role="banner">
       <div class="header-content">
         <div class="header-branding">
@@ -42,19 +38,6 @@
         </div>
 
         <div class="header-actions">
-          <!-- Search Input -->
-          <input
-            type="search"
-            id="news-search"
-            placeholder="Search headlines…"
-            aria-label="Search news headlines"
-          />
-
-          <!-- Source Filter Dropdown -->
-          <select id="source-filter" aria-label="Filter by media source">
-            <option value="">All Sources</option>
-          </select>
-
           <button id="refresh-button" aria-label="Refresh news">
             <span class="icon">🔄</span>
             Refresh
@@ -67,7 +50,6 @@
       </div>
     </header>
 
-    <!-- ================= MAIN ================= -->
     <main role="main">
       <nav
         id="category-buttons"
@@ -75,7 +57,6 @@
         aria-label="News categories"
       ></nav>
 
-      <!-- ================= FEATURED HEADLINE ================= -->
       <section class="featured-news" aria-label="Featured headline">
         <article class="featured-card">
           <div class="featured-content">
@@ -98,18 +79,14 @@
         </article>
       </section>
 
-      <!-- ================= NEWS GRID ================= -->
       <section class="news-grid-wrapper">
         <ul id="news-container" aria-live="polite" aria-busy="false">
-          <!-- JS inserts news cards here -->
-        </ul>
+          </ul>
       </section>
     </main>
 
-    <!-- ================= TOAST ================= -->
     <div id="toast-container" aria-live="assertive"></div>
 
-    <!-- Script -->
     <script src="script.js" defer></script>
   </body>
 </html>
