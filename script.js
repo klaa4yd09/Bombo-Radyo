@@ -1,373 +1,129 @@
-// FULL RSS FEED CONFIGURATION
-const ALL_FEEDS = {
-  "National News": [
-    // --- Core Major PH Media (Original List) ---
-    { url: "https://news.abs-cbn.com/feed", source: "ABS-CBN News (General)" },
-    {
-      url: "https://www.inquirer.net/fullfeed",
-      source: "Inquirer Main (General)",
-    },
-    { url: "https://newsinfo.inquirer.net/feed", source: "Inquirer NewsInfo" },
-    {
-      url: "https://www.gmanetwork.com/news/rss/news/",
-      source: "GMA News Online (General)",
-    },
-    {
-      url: "https://www.gmanetwork.com/news/rss/regions/",
-      source: "GMA Regional",
-    },
-    {
-      url: "https://www.philstar.com/rss/headlines",
-      source: "Philippine Star (General)",
-    },
-    { url: "https://mb.com.ph/feed/", source: "Manila Bulletin (General)" },
-    {
-      url: "https://www.manilatimes.net/news/feed",
-      source: "Manila Times (General)",
-    },
-    { url: "https://www.ptvnews.ph/feed/", source: "PTV News" },
-    { url: "https://www.untvweb.com/feed/", source: "UNTV News" },
-    {
-      url: "https://www.pna.gov.ph/rss",
-      source: "Philippine News Agency (PNA)",
-    },
-    { url: "https://www.rappler.com/feed/", source: "Rappler Main" },
-    { url: "https://www.sunstar.com.ph/rss", source: "SunStar Philippines" },
-    {
-      url: "https://www.bomboradyo.com/category/national-news/feed/",
-      source: "Bombo Radyo Nation",
-    },
-    {
-      url: "https://www.brigadanews.ph/category/national/feed/",
-      source: "Brigada News",
-    },
-    { url: "https://rmn.ph/feed/", source: "RMN Networks" },
-    { url: "https://www.journalnews.com.ph/feed/", source: "People's Journal" },
-
-    // --- New: Specialized PH Sectional Feeds ---
-    { url: "https://www.philstar.com/rss/nation", source: "Philstar Nation" },
-    {
-      url: "https://www.inquirer.net/columns/feed",
-      source: "Inquirer Opinion/Columns",
-    },
-    {
-      url: "https://www.manilatimes.net/news/national/feed/",
-      source: "Manila Times Nation",
-    },
-    { url: "https://www.gmanetwork.com/news/rss/metro/", source: "GMA Metro" },
-
-    // --- New: Additional Major PH News Outlets ---
-    {
-      url: "https://manilastandard.net/rss-feed",
-      source: "Manila Standard (General)",
-    },
-    { url: "https://tempo.com.ph/feed/", source: "Tempo News" },
-    { url: "https://tonite.abante.com.ph/feed", source: "Abante Tonite" },
-    {
-      url: "https://interaksyon.philstar.com/feed/",
-      source: "Interaksyon (Political & Social)",
-    },
-
-    // --- New: PH Government/Institutional Feeds ---
-    {
-      url: "http://www.senate.gov.ph/rss/rss_news.aspx",
-      source: "Senate of the Philippines (News)",
-    },
-    {
-      url: "https://www.bsp.gov.ph/SitePages/RSS.aspx",
-      source: "Bangko Sentral ng Pilipinas (BSP)",
-    },
-  ],
-
-  // ===============================
-  // BUSINESS / ECONOMY
-  // ===============================
-  "Business / Economy": [
-    { url: "https://www.philstar.com/rss/money", source: "Philstar Business" },
-    {
-      url: "https://www.philstar.com/rss/business",
-      source: "Philstar Economy",
-    },
-    { url: "https://businessmirror.com.ph/feed/", source: "BusinessMirror" },
-    {
-      url: "https://www.manilatimes.net/business/feed",
-      source: "Manila Times Business",
-    },
-    { url: "https://www.gmanetwork.com/news/rss/money/", source: "GMA Money" },
-    {
-      url: "https://www.rappler.com/business/feed/",
-      source: "Rappler Business",
-    },
-    { url: "https://www.bworldonline.com/feed/", source: "BusinessWorld" },
-    {
-      url: "https://www.cnnphilippines.com/business/rss",
-      source: "CNN Philippines Business",
-    },
-    {
-      url: "https://www.bsp.gov.ph/rss/MediaList.xml",
-      source: "Bangko Sentral ng Pilipinas",
-    },
-    {
-      url: "https://www.reuters.com/rssFeed/businessNews",
-      source: "Reuters Business",
-    },
-    { url: "https://asia.nikkei.com/rss/feed/nar", source: "Nikkei Asia" },
-  ],
-
-  // ===============================
-  // SPORTS
-  // This section merges the two 'Sports' definitions from your original input
-  // ===============================
-  Sports: [
-    { url: "https://www.espn.com/espn/rss/news", source: "ESPN General" },
-    { url: "https://sports.inquirer.net/feed", source: "Inquirer Sports" },
-    {
-      url: "https://www.gmanetwork.com/news/rss/sports/",
-      source: "GMA Sports",
-    },
-    { url: "https://www.rappler.com/sports/feed/", source: "Rappler Sports" },
-    {
-      url: "https://www.abs-cbn.com/sports/rss/latest-news",
-      source: "ABS-CBN Sports",
-    },
-    {
-      url: "https://nba.nbcsports.com/category/top-posts/feed/",
-      source: "NBC Sports NBA",
-    },
-    {
-      url: "https://www.bomboradyo.com/category/sports/feed/",
-      source: "Bombo Radyo Sports",
-    },
-    { url: "https://www.philstar.com/rss/sports", source: "Philstar Sports" },
-    { url: "https://www.spin.ph/feed", source: "SPIN.ph" },
-    { url: "https://tiebreakertimes.com.ph/feed", source: "Tiebreaker Times" },
-    {
-      url: "https://www.espn.com/espn/rss/nba/news",
-      source: "ESPN NBA Headlines",
-    },
-    {
-      url: "https://www.espn.com/espn/rss/soccer/news",
-      source: "ESPN Soccer Headlines",
-    },
-    { url: "https://www.espn.com/espn/rss/news", source: "ESPN General" },
-    { url: "https://sports.inquirer.net/feed", source: "Inquirer Sports (PH)" },
-    {
-      url: "https://www.gmanetwork.com/news/rss/sports/",
-      source: "GMA Sports (PH)",
-    },
-    {
-      url: "https://www.rappler.com/sports/feed/",
-      source: "Rappler Sports (PH)",
-    },
-    {
-      url: "https://www.abs-cbn.com/sports/rss/latest-news",
-      source: "ABS-CBN Sports (PH)",
-    },
-    {
-      url: "https://www.bomboradyo.com/category/sports/feed/",
-      source: "Bombo Radyo Sports (PH)",
-    },
-    {
-      url: "https://www.philstar.com/rss/sports",
-      source: "Philstar Sports (PH)",
-    },
-    { url: "https://www.spin.ph/feed", source: "SPIN.ph (PH)" },
-    {
-      url: "https://tiebreakertimes.com.ph/feed",
-      source: "Tiebreaker Times (PH)",
-    },
-    // New general international feeds (from previous suggestions)
-    {
-      url: "https://rss.app/feeds/H3y9L6jQ64f5uMv2.xml",
-      source: "BBC Sport (General)",
-    },
-    {
-      url: "http://feeds.reuters.com/reuters/sportsNews",
-      source: "Reuters Sports News",
-    },
-    {
-      url: "https://www.cbssports.com/rss/headlines/",
-      source: "CBS Sports (General)",
-    },
-  ],
-
-  // ===============================
-  // SHOWBIZ
-  // ===============================
-  Showbiz: [
-    {
-      url: "https://www.abs-cbn.com/entertainment/rss/latest-news",
-      source: "ABS-CBN Entertainment",
-    },
-    {
-      url: "https://www.rappler.com/entertainment/feed/",
-      source: "Rappler Showbiz",
-    },
-    {
-      url: "https://www.brigadanews.ph/category/showbiz/feed/",
-      source: "Brigada Showbiz",
-    },
-    {
-      url: "https://rmn.ph/category/showbiz/feed/",
-      source: "RMN Showbiz",
-    },
-    {
-      url: "https://www.pep.ph/feed/",
-      source: "PEP.ph",
-    },
-    {
-      url: "https://www.pikapika.ph/feed",
-      source: "Pikapika",
-    },
-    {
-      url: "https://www.philstar.com/rss/showbiz/",
-      source: "Philstar.com Showbiz",
-    },
-    {
-      url: "https://www.gmanetwork.com/news/rss/showbiz/",
-      source: "GMA News Online Showbiz",
-    },
-    {
-      url: "https://mb.com.ph/category/entertainment/feed/",
-      source: "Manila Bulletin Entertainment",
-    },
-    {
-      url: "https://entertainment.inquirer.net/feed",
-      source: "Inquirer.net Entertainment",
-    },
-    {
-      url: "https://bandera.inquirer.net/feed",
-      source: "Inquirer Bandera",
-    },
-  ],
-
-  // ===============================
-  // TECHNOLOGY
-  // ===============================
-  Technology: [
-    { url: "https://www.rappler.com/technology/feed/", source: "Rappler Tech" },
-    {
-      url: "https://www.gmanetwork.com/news/rss/scitech/",
-      source: "GMA SciTech",
-    },
-    { url: "https://www.theverge.com/rss/index.xml", source: "The Verge" },
-    {
-      url: "https://feeds.arstechnica.com/arstechnica/index",
-      source: "Ars Technica",
-    },
-    // Global Tech News
-    { url: "https://techcrunch.com/feed/", source: "TechCrunch" },
-    { url: "https://www.engadget.com/rss.xml", source: "Engadget" },
-    {
-      url: "https://www.wired.com/feed/category/gear/latest/rss",
-      source: "Wired Gear",
-    },
-    { url: "https://www.cnet.com/rss/news/", source: "CNET" },
-    {
-      url: "https://mashable.com/feeds/rss/technology",
-      source: "Mashable Tech",
-    },
-    { url: "https://news.ycombinator.com/rss", source: "Hacker News" },
-  ],
-
-  // ===============================
-  // BALITANG ESPESYAL / SPECIAL REPORTS
-  // ===============================
-  "Balitang Espesyal": [
-    {
-      url: "https://www.bomboradyo.com/category/balitang-espesyal/feed/",
-      source: "Bombo Radyo Special Reports",
-    },
-    {
-      url: "https://www.gmanetwork.com/news/rss/specialreports/",
-      source: "GMA News Special Reports",
-    },
-    {
-      url: "https://www.manilatimes.net/the-sunday-times/feed/",
-      source: "Manila Times Sunday Magazine",
-    },
-    {
-      url: "https://interaksyon.philstar.com/feed/",
-      source: "Interaksyon (Political & Social)",
-    },
-    {
-      url: "https://www.philstar.com/rss/lifestyle/features",
-      source: "Philstar Lifestyle Features",
-    },
-    {
-      url: "https://mb.com.ph/category/lifestyle/luminaries-and-life/feed/",
-      source: "Manila Bulletin Luminaries & Life",
-    },
-    {
-      url: "https://www.rappler.com/news/feed/",
-      source: "Rappler News (General - Key Investigations)",
-    },
-  ],
-
-  // ===============================
-  // LOCAL (Social Links - Special Hardcoded List)
-  // ===============================
-  "Local Links": {
-    // Renamed category to avoid confusion with 'General / Local'
-    isSocialMedia: true,
-    items: [
-      {
-        title: "RMN Malaybalay ",
-        link: "https://www.facebook.com/profile.php?id=100063929018518",
-        source: "Facebook",
-      },
-      {
-        title: "101.7 XFM Bukidnon",
-        link: "https://www.facebook.com/101.7XFMBUKIDNON2025",
-        source: "XFM Bukidnon",
-      },
-      {
-        title: "Juander Radyo Malaybalay 90.5 FM ",
-        link: "https://www.facebook.com/juanderradyomalaybalay",
-        source: "Juander Radio",
-      },
-      {
-        title: "BOMBO RADYO PHILIPPINES ",
-        link: "https://www.facebook.com/bomboradyophilippinesy",
-        source: "BOMBO RADYO PHILIPPINES",
-      },
-      {
-        title: "BOMBO RADYO DAVAO",
-        link: "https://www.facebook.com/BomboRadyoDavao",
-        source: "BOMBO RADYO DAVAO",
-      },
-    ],
-  },
-
-  International: [
-    { url: "https://www.aljazeera.com/xml/rss/all.xml", source: "Al Jazeera" },
-    {
-      url: "https://www.cnbc.com/id/100727362/device/rss/rss.html",
-      source: "CNBC World",
-    },
-    { url: "https://www.france24.com/en/rss", source: "France 24" },
-    { url: "https://rss.dw.com/rdf/rss-en-world", source: "DW News" },
-    {
-      url: "https://fulltextrssfeed.com/www.aljazeera.com/xml/rss/all.xml",
-      source: "Global Echo",
-    },
-  ],
-};
-
 /* =========================================================
-   RSS NEWS AGGREGATOR – PRO DISCORD EDITION (10-MIN SYNC)
+   RSS NEWS AGGREGATOR – PRO DISCORD EDITION (ALWAYS SYNC)
    Features: Auto-refresh, Deduplication, Breaking Alerts
 ========================================================= */
 
 // 1. CONFIGURATION
-const DISCORD_WEBHOOK_URL =
-  "https://discord.com/api/webhooks/1449555169577799700/SRBD35OEYyRiZuIGH3sTpBsJYye9nRUb-F3vRPVHfyQIOf7Q_ZaGeqOhYGfTOg9LPmCr"; // <--- PASTE URL HERE
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1449555169577799700/SRBD35OEYyRiZuIGH3sTpBsJYye9nRUb-F3vRPVHfyQIOf7Q_ZaGeqOhYGfTOg9LPmCr";
 const BASE_API_URL = `https://api.rss2json.com/v1/api.json?rss_url=`;
 const DEFAULT_CATEGORY = "National News";
 
 // Timing Logic
 const AUTO_REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes
-const BREAKING_MINUTES = 20; // Look-back window for Discord alerts
+const BREAKING_MINUTES = 25; // Look-back window for Discord alerts
+
+// FULL RSS FEED CONFIGURATION
+const ALL_FEEDS = {
+  "National News": [
+    { url: "https://news.abs-cbn.com/feed", source: "ABS-CBN News (General)" },
+    { url: "https://www.inquirer.net/fullfeed", source: "Inquirer Main (General)" },
+    { url: "https://newsinfo.inquirer.net/feed", source: "Inquirer NewsInfo" },
+    { url: "https://www.gmanetwork.com/news/rss/news/", source: "GMA News Online (General)" },
+    { url: "https://www.gmanetwork.com/news/rss/regions/", source: "GMA Regional" },
+    { url: "https://www.philstar.com/rss/headlines", source: "Philippine Star (General)" },
+    { url: "https://mb.com.ph/feed/", source: "Manila Bulletin (General)" },
+    { url: "https://www.manilatimes.net/news/feed", source: "Manila Times (General)" },
+    { url: "https://www.ptvnews.ph/feed/", source: "PTV News" },
+    { url: "https://www.untvweb.com/feed/", source: "UNTV News" },
+    { url: "https://www.pna.gov.ph/rss", source: "Philippine News Agency (PNA)" },
+    { url: "https://www.rappler.com/feed/", source: "Rappler Main" },
+    { url: "https://www.sunstar.com.ph/rss", source: "SunStar Philippines" },
+    { url: "https://www.bomboradyo.com/category/national-news/feed/", source: "Bombo Radyo Nation" },
+    { url: "https://www.brigadanews.ph/category/national/feed/", source: "Brigada News" },
+    { url: "https://rmn.ph/feed/", source: "RMN Networks" },
+    { url: "https://www.journalnews.com.ph/feed/", source: "People's Journal" },
+    { url: "https://www.philstar.com/rss/nation", source: "Philstar Nation" },
+    { url: "https://www.inquirer.net/columns/feed", source: "Inquirer Opinion/Columns" },
+    { url: "https://www.manilatimes.net/news/national/feed/", source: "Manila Times Nation" },
+    { url: "https://www.gmanetwork.com/news/rss/metro/", source: "GMA Metro" },
+    { url: "https://manilastandard.net/rss-feed", source: "Manila Standard (General)" },
+    { url: "https://tempo.com.ph/feed/", source: "Tempo News" },
+    { url: "https://tonite.abante.com.ph/feed", source: "Abante Tonite" },
+    { url: "https://interaksyon.philstar.com/feed/", source: "Interaksyon (Political & Social)" },
+    { url: "http://www.senate.gov.ph/rss/rss_news.aspx", source: "Senate of the Philippines (News)" },
+    { url: "https://www.bsp.gov.ph/SitePages/RSS.aspx", source: "Bangko Sentral ng Pilipinas (BSP)" },
+  ],
+  "Business / Economy": [
+    { url: "https://www.philstar.com/rss/money", source: "Philstar Business" },
+    { url: "https://www.philstar.com/rss/business", source: "Philstar Economy" },
+    { url: "https://businessmirror.com.ph/feed/", source: "BusinessMirror" },
+    { url: "https://www.manilatimes.net/business/feed", source: "Manila Times Business" },
+    { url: "https://www.gmanetwork.com/news/rss/money/", source: "GMA Money" },
+    { url: "https://www.rappler.com/business/feed/", source: "Rappler Business" },
+    { url: "https://www.bworldonline.com/feed/", source: "BusinessWorld" },
+    { url: "https://www.bsp.gov.ph/rss/MediaList.xml", source: "Bangko Sentral ng Pilipinas" },
+    { url: "https://www.reuters.com/rssFeed/businessNews", source: "Reuters Business" },
+    { url: "https://asia.nikkei.com/rss/feed/nar", source: "Nikkei Asia" },
+  ],
+  "Sports": [
+    { url: "https://www.espn.com/espn/rss/news", source: "ESPN General" },
+    { url: "https://sports.inquirer.net/feed", source: "Inquirer Sports" },
+    { url: "https://www.gmanetwork.com/news/rss/sports/", source: "GMA Sports" },
+    { url: "https://www.rappler.com/sports/feed/", source: "Rappler Sports" },
+    { url: "https://www.abs-cbn.com/sports/rss/latest-news", source: "ABS-CBN Sports" },
+    { url: "https://nba.nbcsports.com/category/top-posts/feed/", source: "NBC Sports NBA" },
+    { url: "https://www.bomboradyo.com/category/sports/feed/", source: "Bombo Radyo Sports" },
+    { url: "https://www.philstar.com/rss/sports", source: "Philstar Sports" },
+    { url: "https://www.spin.ph/feed", source: "SPIN.ph" },
+    { url: "https://tiebreakertimes.com.ph/feed", source: "Tiebreaker Times" },
+    { url: "https://www.espn.com/espn/rss/nba/news", source: "ESPN NBA Headlines" },
+    { url: "https://www.espn.com/espn/rss/soccer/news", source: "ESPN Soccer Headlines" },
+    { url: "https://rss.app/feeds/H3y9L6jQ64f5uMv2.xml", source: "BBC Sport (General)" },
+    { url: "http://feeds.reuters.com/reuters/sportsNews", source: "Reuters Sports News" },
+    { url: "https://www.cbssports.com/rss/headlines/", source: "CBS Sports (General)" },
+  ],
+  "Showbiz": [
+    { url: "https://www.abs-cbn.com/entertainment/rss/latest-news", source: "ABS-CBN Entertainment" },
+    { url: "https://www.rappler.com/entertainment/feed/", source: "Rappler Showbiz" },
+    { url: "https://www.brigadanews.ph/category/showbiz/feed/", source: "Brigada Showbiz" },
+    { url: "https://rmn.ph/category/showbiz/feed/", source: "RMN Showbiz" },
+    { url: "https://www.pep.ph/feed/", source: "PEP.ph" },
+    { url: "https://www.pikapika.ph/feed", source: "Pikapika" },
+    { url: "https://www.philstar.com/rss/showbiz/", source: "Philstar.com Showbiz" },
+    { url: "https://www.gmanetwork.com/news/rss/showbiz/", source: "GMA News Online Showbiz" },
+    { url: "https://mb.com.ph/category/entertainment/feed/", source: "Manila Bulletin Entertainment" },
+    { url: "https://entertainment.inquirer.net/feed", source: "Inquirer.net Entertainment" },
+    { url: "https://bandera.inquirer.net/feed", source: "Inquirer Bandera" },
+  ],
+  "Technology": [
+    { url: "https://www.rappler.com/technology/feed/", source: "Rappler Tech" },
+    { url: "https://www.gmanetwork.com/news/rss/scitech/", source: "GMA SciTech" },
+    { url: "https://www.theverge.com/rss/index.xml", source: "The Verge" },
+    { url: "https://feeds.arstechnica.com/arstechnica/index", source: "Ars Technica" },
+    { url: "https://techcrunch.com/feed/", source: "TechCrunch" },
+    { url: "https://www.engadget.com/rss.xml", source: "Engadget" },
+    { url: "https://www.wired.com/feed/category/gear/latest/rss", source: "Wired Gear" },
+    { url: "https://www.cnet.com/rss/news/", source: "CNET" },
+    { url: "https://mashable.com/feeds/rss/technology", source: "Mashable Tech" },
+    { url: "https://news.ycombinator.com/rss", source: "Hacker News" },
+  ],
+  "Balitang Espesyal": [
+    { url: "https://www.bomboradyo.com/category/balitang-espesyal/feed/", source: "Bombo Radyo Special Reports" },
+    { url: "https://www.gmanetwork.com/news/rss/specialreports/", source: "GMA News Special Reports" },
+    { url: "https://www.manilatimes.net/the-sunday-times/feed/", source: "Manila Times Sunday Magazine" },
+    { url: "https://interaksyon.philstar.com/feed/", source: "Interaksyon (Political & Social)" },
+    { url: "https://www.philstar.com/rss/lifestyle/features", source: "Philstar Lifestyle Features" },
+    { url: "https://mb.com.ph/category/lifestyle/luminaries-and-life/feed/", source: "Manila Bulletin Luminaries & Life" },
+    { url: "https://www.rappler.com/news/feed/", source: "Rappler News (General - Key Investigations)" },
+  ],
+  "Local Links": {
+    isSocialMedia: true,
+    items: [
+      { title: "RMN Malaybalay ", link: "https://www.facebook.com/profile.php?id=100063929018518", source: "Facebook" },
+      { title: "101.7 XFM Bukidnon", link: "https://www.facebook.com/101.7XFMBUKIDNON2025", source: "XFM Bukidnon" },
+      { title: "Juander Radyo Malaybalay 90.5 FM ", link: "https://www.facebook.com/juanderradyomalaybalay", source: "Juander Radio" },
+      { title: "BOMBO RADYO PHILIPPINES ", link: "https://www.facebook.com/bomboradyophilippinesy", source: "BOMBO RADYO PHILIPPINES" },
+      { title: "BOMBO RADYO DAVAO", link: "https://www.facebook.com/BomboRadyoDavao", source: "BOMBO RADYO DAVAO" },
+    ],
+  },
+  "International": [
+    { url: "https://www.aljazeera.com/xml/rss/all.xml", source: "Al Jazeera" },
+    { url: "https://www.cnbc.com/id/100727362/device/rss/rss.html", source: "CNBC World" },
+    { url: "https://www.france24.com/en/rss", source: "France 24" },
+    { url: "https://rss.dw.com/rdf/rss-en-world", source: "DW News" },
+    { url: "https://fulltextrssfeed.com/www.aljazeera.com/xml/rss/all.xml", source: "Global Echo" },
+  ],
+};
 
 let activeCategory = DEFAULT_CATEGORY;
 let cachedNews = [];
@@ -382,37 +138,29 @@ const dom = {
 };
 
 // =========================================================
-// DISCORD & DEDUPLICATION LOGIC
+// PERSISTENT SYNC & DISCORD LOGIC
 // =========================================================
 async function sendToDiscord(item) {
-  if (!DISCORD_WEBHOOK_URL.startsWith("https://discord.com")) return;
+  if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL === "") return;
 
-  // Persistent Deduplication using LocalStorage
-  let sentHistory = JSON.parse(
-    localStorage.getItem("discord_sent_history") || "[]"
-  );
-
-  if (sentHistory.includes(item.link)) return; // Already sent
+  // LocalStorage check to prevent duplicate alerts across page refreshes
+  let sentHistory = JSON.parse(localStorage.getItem("discord_sent_history") || "[]");
+  if (sentHistory.includes(item.link)) return;
 
   const payload = {
     username: "Bombo Radyo Intel Bot",
-    avatar_url:
-      "https://www.bomboradyo.com/wp-content/uploads/2021/01/logo.png",
-    embeds: [
-      {
-        title: "🚨 BREAKING: " + item.title,
-        url: item.link,
-        description:
-          item.description.replace(/<[^>]*>/g, "").slice(0, 200) + "...",
-        color: 15548997, // Red for breaking news
-        fields: [
-          { name: "Source", value: item.sourceTitle, inline: true },
-          { name: "Category", value: activeCategory, inline: true },
-        ],
-        footer: { text: "Bombo Radyo Hub • Automated 10-min Sync" },
-        timestamp: new Date().toISOString(),
-      },
-    ],
+    embeds: [{
+      title: "🚨 BREAKING: " + item.title,
+      url: item.link,
+      description: item.description.replace(/<[^>]*>/g, "").slice(0, 250) + "...",
+      color: 15548997, 
+      fields: [
+        { name: "Source", value: item.sourceTitle, inline: true },
+        { name: "Category", value: activeCategory, inline: true },
+      ],
+      footer: { text: "Bombo Radyo Hub • Always Syncing" },
+      timestamp: new Date().toISOString(),
+    }],
   };
 
   try {
@@ -424,36 +172,21 @@ async function sendToDiscord(item) {
 
     if (response.ok) {
       sentHistory.push(item.link);
-      if (sentHistory.length > 50) sentHistory.shift(); // Keep history lean
+      if (sentHistory.length > 100) sentHistory.shift(); 
       localStorage.setItem("discord_sent_history", JSON.stringify(sentHistory));
-      console.log("Discord alert triggered for:", item.title);
+      console.log("Discord alert sent:", item.title);
     }
   } catch (err) {
-    console.error("Webhook Error:", err);
+    console.warn("Discord Webhook failed. Network error.");
   }
 }
 
 // =========================================================
-// CORE ENGINE FUNCTIONS
+// CORE ENGINE
 // =========================================================
 function isBreaking(pubDate) {
   const diff = (Date.now() - new Date(pubDate).getTime()) / 60000;
   return diff > 0 && diff <= BREAKING_MINUTES;
-}
-
-function calculateReadingTime(text = "") {
-  const words = text.replace(/<[^>]*>/g, "").split(/\s+/).length || 50;
-  return `${Math.ceil(words / 200)} min read`;
-}
-
-function showToast(message) {
-  const existing = document.querySelector(".toast");
-  if (existing) existing.remove();
-  const toast = document.createElement("div");
-  toast.className = "toast";
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 2500);
 }
 
 function debounce(fn, delay = 300) {
@@ -466,14 +199,10 @@ function debounce(fn, delay = 300) {
 
 async function fetchFeed(feed, signal) {
   try {
-    const res = await fetch(
-      `${BASE_API_URL}${encodeURIComponent(feed.url)}&_=${Date.now()}`,
-      { signal }
-    );
+    // Added a random string to prevent browser caching of the RSS data
+    const res = await fetch(`${BASE_API_URL}${encodeURIComponent(feed.url)}&_=${Math.random()}`, { signal });
     const data = await res.json();
-    return data.status === "ok"
-      ? data.items.map((i) => ({ ...i, sourceTitle: feed.source }))
-      : [];
+    return data.status === "ok" ? data.items.map((i) => ({ ...i, sourceTitle: feed.source })) : [];
   } catch {
     return [];
   }
@@ -487,15 +216,7 @@ async function fetchNews(isManual = false) {
   currentFetchController = new AbortController();
 
   if (isManual) dom.refreshBtn()?.classList.add("spinning");
-
-  // Show skeleton only on manual refresh or first load
-  if (isManual || container.innerHTML === "") {
-    container.innerHTML = Array(6)
-      .fill(`<li class="news-item skeleton" style="height:200px"></li>`)
-      .join("");
-  }
-
-  dom.status().textContent = `Syncing ${activeCategory}...`;
+  dom.status().textContent = `Refreshing ${activeCategory}...`;
 
   const categoryData = ALL_FEEDS[activeCategory];
 
@@ -517,39 +238,36 @@ async function fetchNews(isManual = false) {
       cachedNews = results
         .flat()
         .filter((i) => i.title && i.link)
-        .sort(
-          (a, b) =>
-            new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
-        );
+        .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
 
       renderNews(cachedNews);
       applyFilters();
 
-      // DISCORD CHECK: If newest item is within the "Breaking" window, send it!
-      if (cachedNews.length > 0 && isBreaking(cachedNews[0].pubDate)) {
-        sendToDiscord(cachedNews[0]);
-      }
+      // DISCORD SYNC: Check the top 3 most recent items
+      cachedNews.slice(0, 3).forEach(item => {
+        if (isBreaking(item.pubDate)) {
+          sendToDiscord(item);
+        }
+      });
+
     } catch (e) {
-      if (e.name !== "AbortError") showToast("Error loading feeds.");
+      if (e.name !== "AbortError") console.error("Sync interrupted.");
     }
   }
 
-  dom.status().textContent = `${cachedNews.length} headlines live | Next sync in 10m`;
-  if (isManual) {
-    dom.refreshBtn()?.classList.remove("spinning");
-    showToast("Feed updated");
-  }
+  dom.status().textContent = `Live: ${cachedNews.length} Headlines | Next Auto-Sync in 10m`;
+  if (isManual) dom.refreshBtn()?.classList.remove("spinning");
 }
 
 function renderNews(items) {
   const container = dom.container();
+  if (!container) return;
+  
   container.innerHTML = "";
   if (!items.length) {
-    container.innerHTML = `<li style="grid-column:1/-1; text-align:center; padding:3rem;">No matches.</li>`;
+    container.innerHTML = `<li class="no-results">No recent updates found for this filter.</li>`;
     return;
   }
-
-  updateFeaturedCard(items[0]);
 
   items.forEach((item) => {
     const date = new Date(item.pubDate);
@@ -563,18 +281,12 @@ function renderNews(items) {
         <div class="source-row">
           <img src="${favicon}" class="source-icon" onerror="this.style.display='none'">
           <span class="source-tag">${item.sourceTitle}</span>
-          ${
-            isBreaking(item.pubDate)
-              ? '<span class="breaking-badge">BREAKING</span>'
-              : ""
-          }
+          ${isBreaking(item.pubDate) ? '<span class="breaking-badge pulse">NEW</span>' : ""}
         </div>
-        <a href="${item.link}" target="_blank" class="news-link">${
-      item.title
-    }</a>
+        <a href="${item.link}" target="_blank" class="news-link">${item.title}</a>
       </div>
       <div class="news-meta">
-        <span>${calculateReadingTime(item.description)}</span>
+        <span>${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
         <span>${date.toLocaleDateString()}</span>
       </div>
     `;
@@ -582,24 +294,11 @@ function renderNews(items) {
   });
 }
 
-function updateFeaturedCard(item) {
-  const card = document.querySelector(".featured-card");
-  if (!card || !item) return;
-  card.querySelector(".featured-title").textContent = item.title;
-  const cleanDesc =
-    item.description.replace(/<[^>]*>/g, "").slice(0, 160) + "...";
-  card.querySelector(".featured-excerpt").textContent = cleanDesc;
-  card.querySelector(".source-tag").textContent = item.sourceTitle;
-  card.onclick = () => window.open(item.link, "_blank");
-}
-
 function applyFilters() {
-  const term = dom.search().value.toLowerCase();
-  const source = dom.sourceFilter().value;
+  const term = dom.search()?.value.toLowerCase() || "";
+  const source = dom.sourceFilter()?.value || "";
   const filtered = cachedNews.filter(
-    (i) =>
-      i.title.toLowerCase().includes(term) &&
-      (!source || i.sourceTitle === source)
+    (i) => i.title.toLowerCase().includes(term) && (!source || i.sourceTitle === source)
   );
   renderNews(filtered);
 }
@@ -616,28 +315,24 @@ function init() {
       btn.className = cat === activeCategory ? "active" : "";
       btn.onclick = () => {
         activeCategory = cat;
-        document
-          .querySelectorAll(".category-tabs button")
-          .forEach((b) => b.classList.toggle("active", b.textContent === cat));
+        document.querySelectorAll("#category-buttons button").forEach((b) => b.classList.toggle("active", b.textContent === cat));
         fetchNews();
       };
       nav.appendChild(btn);
     });
   }
 
-  const sources = new Set();
-  Object.values(ALL_FEEDS).forEach((v) =>
-    v.isSocialMedia
-      ? v.items.forEach((i) => sources.add(i.source))
-      : v.forEach((f) => sources.add(f.source))
-  );
-
   const filterDropdown = dom.sourceFilter();
   if (filterDropdown) {
-    sources.forEach((s) => {
-      const opt = document.createElement("option");
-      opt.value = opt.textContent = s;
-      filterDropdown.appendChild(opt);
+    const allSources = new Set();
+    Object.values(ALL_FEEDS).forEach(v => {
+        if(v.isSocialMedia) v.items.forEach(i => allSources.add(i.source));
+        else v.forEach(f => allSources.add(f.source));
+    });
+    allSources.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = opt.textContent = s;
+        filterDropdown.appendChild(opt);
     });
   }
 
@@ -645,13 +340,13 @@ function init() {
   if (dom.search()) dom.search().oninput = debounce(applyFilters);
   if (dom.sourceFilter()) dom.sourceFilter().onchange = applyFilters;
 
+  // Start the first fetch
   fetchNews();
 
-  // Automate the 10-minute cycle
+  // AUTOMATIC SYNC HEARTBEAT (The "Always Sync" part)
   setInterval(() => {
-    console.log("Auto-syncing news...");
     fetchNews();
   }, AUTO_REFRESH_INTERVAL);
 }
 
-init();
+document.addEventListener("DOMContentLoaded", init);
