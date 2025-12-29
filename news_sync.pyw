@@ -1,18 +1,19 @@
 import feedparser
 import requests
 import time
+import re
 
 # 1. SETUP
 WEBHOOK_URL = "https://discord.com/api/webhooks/1449555169577799700/SRBD35OEYyRiZuIGH3sTpBsJYye9nRUb-F3vRPVHfyQIOf7Q_ZaGeqOhYGfTOg9LPmCr"
 
-# 2. DATA STRUCTURE
-# ======================================
-# RSS FEED CONFIGURATION (PYTHON)
-# ======================================
+# Headers to mimic a browser (Crucial for Philstar, ESPN, and Business sites)
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+}
 
+# 2. DATA STRUCTURE
 ALL_FEEDS = {
     "National News": [
-        # --- Core Major PH Media ---
         {"url": "https://news.abs-cbn.com/feed", "source": "ABS-CBN News (General)"},
         {"url": "https://www.inquirer.net/fullfeed", "source": "Inquirer Main (General)"},
         {"url": "https://newsinfo.inquirer.net/feed", "source": "Inquirer NewsInfo"},
@@ -30,24 +31,17 @@ ALL_FEEDS = {
         {"url": "https://www.brigadanews.ph/category/national/feed/", "source": "Brigada News"},
         {"url": "https://rmn.ph/feed/", "source": "RMN Networks"},
         {"url": "https://www.journalnews.com.ph/feed/", "source": "People's Journal"},
-
-        # --- Specialized PH Sectional Feeds ---
         {"url": "https://www.philstar.com/rss/nation", "source": "Philstar Nation"},
         {"url": "https://www.inquirer.net/columns/feed", "source": "Inquirer Opinion/Columns"},
         {"url": "https://www.manilatimes.net/news/national/feed/", "source": "Manila Times Nation"},
         {"url": "https://www.gmanetwork.com/news/rss/metro/", "source": "GMA Metro"},
-
-        # --- Additional Major PH News Outlets ---
         {"url": "https://manilastandard.net/rss-feed", "source": "Manila Standard (General)"},
         {"url": "https://tempo.com.ph/feed/", "source": "Tempo News"},
         {"url": "https://tonite.abante.com.ph/feed", "source": "Abante Tonite"},
         {"url": "https://interaksyon.philstar.com/feed/", "source": "Interaksyon (Political & Social)"},
-
-        # --- PH Government/Institutional Feeds ---
         {"url": "http://www.senate.gov.ph/rss/rss_news.aspx", "source": "Senate of the Philippines (News)"},
         {"url": "https://www.bsp.gov.ph/SitePages/RSS.aspx", "source": "Bangko Sentral ng Pilipinas (BSP)"},
     ],
-
     "Business / Economy": [
         {"url": "https://www.philstar.com/rss/money", "source": "Philstar Business"},
         {"url": "https://www.philstar.com/rss/business", "source": "Philstar Economy"},
@@ -56,12 +50,10 @@ ALL_FEEDS = {
         {"url": "https://www.gmanetwork.com/news/rss/money/", "source": "GMA Money"},
         {"url": "https://www.rappler.com/business/feed/", "source": "Rappler Business"},
         {"url": "https://www.bworldonline.com/feed/", "source": "BusinessWorld"},
-        {"url": "https://www.cnnphilippines.com/business/rss", "source": "CNN Philippines Business"},
         {"url": "https://www.bsp.gov.ph/rss/MediaList.xml", "source": "Bangko Sentral ng Pilipinas"},
         {"url": "https://www.reuters.com/rssFeed/businessNews", "source": "Reuters Business"},
         {"url": "https://asia.nikkei.com/rss/feed/nar", "source": "Nikkei Asia"},
     ],
-
     "Sports": [
         {"url": "https://www.espn.com/espn/rss/news", "source": "ESPN General"},
         {"url": "https://sports.inquirer.net/feed", "source": "Inquirer Sports"},
@@ -79,7 +71,6 @@ ALL_FEEDS = {
         {"url": "http://feeds.reuters.com/reuters/sportsNews", "source": "Reuters Sports News"},
         {"url": "https://www.cbssports.com/rss/headlines/", "source": "CBS Sports (General)"},
     ],
-
     "Showbiz": [
         {"url": "https://www.abs-cbn.com/entertainment/rss/latest-news", "source": "ABS-CBN Entertainment"},
         {"url": "https://www.rappler.com/entertainment/feed/", "source": "Rappler Showbiz"},
@@ -93,7 +84,6 @@ ALL_FEEDS = {
         {"url": "https://entertainment.inquirer.net/feed", "source": "Inquirer.net Entertainment"},
         {"url": "https://bandera.inquirer.net/feed", "source": "Inquirer Bandera"},
     ],
-
     "Technology": [
         {"url": "https://www.rappler.com/technology/feed/", "source": "Rappler Tech"},
         {"url": "https://www.gmanetwork.com/news/rss/scitech/", "source": "GMA SciTech"},
@@ -106,7 +96,6 @@ ALL_FEEDS = {
         {"url": "https://mashable.com/feeds/rss/technology", "source": "Mashable Tech"},
         {"url": "https://news.ycombinator.com/rss", "source": "Hacker News"},
     ],
-
     "Balitang Espesyal": [
         {"url": "https://www.bomboradyo.com/category/balitang-espesyal/feed/", "source": "Bombo Radyo Special Reports"},
         {"url": "https://www.gmanetwork.com/news/rss/specialreports/", "source": "GMA News Special Reports"},
@@ -116,7 +105,13 @@ ALL_FEEDS = {
         {"url": "https://mb.com.ph/category/lifestyle/luminaries-and-life/feed/", "source": "Manila Bulletin Luminaries & Life"},
         {"url": "https://www.rappler.com/news/feed/", "source": "Rappler News (General - Key Investigations)"},
     ],
-
+    "International": [
+        {"url": "https://www.aljazeera.com/xml/rss/all.xml", "source": "Al Jazeera"},
+        {"url": "https://www.cnbc.com/id/100727362/device/rss/rss.html", "source": "CNBC World"},
+        {"url": "https://www.france24.com/en/rss", "source": "France 24"},
+        {"url": "https://rss.dw.com/rdf/rss-en-world", "source": "DW News"},
+        {"url": "https://fulltextrssfeed.com/www.aljazeera.com/xml/rss/all.xml", "source": "Global Echo"},
+    ],
     "Local Links": {
         "isSocialMedia": True,
         "items": [
@@ -127,17 +122,7 @@ ALL_FEEDS = {
             {"title": "BOMBO RADYO DAVAO", "link": "https://www.facebook.com/BomboRadyoDavao", "source": "BOMBO RADYO DAVAO"},
         ],
     },
-
-    "International": [
-        {"url": "https://www.aljazeera.com/xml/rss/all.xml", "source": "Al Jazeera"},
-        {"url": "https://www.cnbc.com/id/100727362/device/rss/rss.html", "source": "CNBC World"},
-        {"url": "https://www.france24.com/en/rss", "source": "France 24"},
-        {"url": "https://rss.dw.com/rdf/rss-en-world", "source": "DW News"},
-        {"url": "https://fulltextrssfeed.com/www.aljazeera.com/xml/rss/all.xml", "source": "Global Echo"},
-    ],
 }
-
-
 
 # Persistent Memory
 sent_articles = set()
@@ -145,27 +130,30 @@ sent_articles = set()
 def check_news():
     print(f"--- Syncing All Feeds: {time.strftime('%H:%M:%S')} ---")
     
-    # Loop through Categories
     for category, feeds in ALL_FEEDS.items():
-        # Loop through each Feed in Category
+        # Handle the dictionary structure of "Local Links" (Skip it as it's not RSS)
+        if isinstance(feeds, dict):
+            continue
+
         for feed_info in feeds:
             try:
-                # Add timeout to avoid script hanging on slow websites
-                feed = feedparser.parse(feed_info['url'])
+                # Use requests with a browser header to fetch the feed
+                response = requests.get(feed_info['url'], headers=HEADERS, timeout=20)
+                feed = feedparser.parse(response.content)
                 
                 if not feed.entries:
                     continue
                 
-                # Get the latest article
                 latest = feed.entries[0]
                 article_id = latest.link
                 
                 if article_id not in sent_articles:
                     print(f"[{category}] New Story: {latest.title}")
                     
-                    # Clean description (remove HTML tags)
+                    # Clean description (remove HTML tags with regex)
                     desc = latest.get('summary', 'No description available.')
-                    clean_desc = (desc[:200] + '...') if len(desc) > 200 else desc
+                    clean_desc = re.sub('<[^<]+?>', '', desc) 
+                    clean_desc = (clean_desc[:200] + '...') if len(clean_desc) > 200 else clean_desc
 
                     payload = {
                         "username": "News Intelligence Bot",
@@ -173,7 +161,7 @@ def check_news():
                             "title": f"🚨 {latest.title}",
                             "url": latest.link,
                             "description": clean_desc,
-                            "color": 1982639, # Your CSS Primary Blue
+                            "color": 1982639, 
                             "fields": [
                                 {"name": "Source", "value": feed_info['source'], "inline": True},
                                 {"name": "Category", "value": category, "inline": True}
@@ -183,19 +171,20 @@ def check_news():
                         }]
                     }
                     
-                    response = requests.post(WEBHOOK_URL, json=payload)
-                    
-                    if response.status_code == 204 or response.status_code == 200:
-                        sent_articles.add(article_id)
+                    requests.post(WEBHOOK_URL, json=payload)
+                    sent_articles.add(article_id)
+                
+                # Small delay to avoid triggering rate limits
+                time.sleep(0.5)
                 
             except Exception as e:
                 print(f"Error checking {feed_info['source']}: {e}")
 
-    # Memory Management: Keep only the last 200 sent articles
-    if len(sent_articles) > 200:
+    # Memory Management
+    if len(sent_articles) > 300:
         list_articles = list(sent_articles)
         sent_articles.clear()
-        for i in list_articles[-100:]:
+        for i in list_articles[-150:]:
             sent_articles.add(i)
 
 # Main Loop
