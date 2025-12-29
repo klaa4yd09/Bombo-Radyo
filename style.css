@@ -115,11 +115,11 @@ header {
     display: flex;
     gap: 0.5rem;
     flex: 1;
-    min-width: 300px;
-    max-width: 600px;
+    min-width: 250px;
+    max-width: 500px; /* Reduced max-width since one element is removed */
 }
 
-#news-search, #source-filter {
+#news-search {
     padding: 0.6rem 1rem;
     border-radius: 12px;
     border: 1.5px solid var(--border);
@@ -127,10 +127,10 @@ header {
     background: var(--bg-card);
     color: var(--text-main);
     transition: var(--transition);
-    width: 100%;
+    width: 100%; /* Takes up remaining space in the flex container */
 }
 
-#news-search:focus, #source-filter:focus {
+#news-search:focus {
     outline: none;
     border-color: var(--primary-light);
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
