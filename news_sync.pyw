@@ -1,17 +1,29 @@
 import feedparser
 import requests
 import time
+import os
+import ctypes
+import logging
 import re
+from playwright.sync_api import sync_playwright
 
-# 1. SETUP
-WEBHOOK_URL = "https://discord.com/api/webhooks/1449555169577799700/SRBD35OEYyRiZuIGH3sTpBsJYye9nRUb-F3vRPVHfyQIOf7Q_ZaGeqOhYGfTOg9LPmCr"
+# --- 1. SETUP LOGGING (Importante para sa .pyw aron naay record sa background) ---
+logging.basicConfig(
+    filename='news_sync_activity.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
-# Headers to mimic a browser (Crucial for Philstar, ESPN, and Business sites)
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-}
+# --- 2. SETUP & CONFIG ---
+RSS_WEBHOOK_URL = "https://discord.com/api/webhooks/1449555169577799700/SRBD35OEYyRiZuIGH3sTpBsJYye9nRUb-F3vRPVHfyQIOf7Q_ZaGeqOhYGfTOg9LPmCr"
+FB_WEBHOOK_URL = "https://discord.com/api/webhooks/1452838041000345610/xum2Ov3bem-DX-1cf9UPoQQUhmzHVBGrRvVlSGRJTFoSKM-qWqv3NFKUl_Myy4KzFzJv"
+SAVE_DIR = "history"
 
-# 2. DATA STRUCTURE
+if not os.path.exists(SAVE_DIR):
+    os.makedirs(SAVE_DIR)
+
+# --- 3. DATA STRUCTURES (KOMPLETO NGA RSS LIST) ---
 ALL_FEEDS = {
     "National News": [
         {"url": "https://news.abs-cbn.com/feed", "source": "ABS-CBN News (General)"},
@@ -50,6 +62,7 @@ ALL_FEEDS = {
         {"url": "https://www.gmanetwork.com/news/rss/money/", "source": "GMA Money"},
         {"url": "https://www.rappler.com/business/feed/", "source": "Rappler Business"},
         {"url": "https://www.bworldonline.com/feed/", "source": "BusinessWorld"},
+        {"url": "https://www.cnnphilippines.com/business/rss", "source": "CNN Philippines Business"},
         {"url": "https://www.bsp.gov.ph/rss/MediaList.xml", "source": "Bangko Sentral ng Pilipinas"},
         {"url": "https://www.reuters.com/rssFeed/businessNews", "source": "Reuters Business"},
         {"url": "https://asia.nikkei.com/rss/feed/nar", "source": "Nikkei Asia"},
@@ -112,105 +125,143 @@ ALL_FEEDS = {
         {"url": "https://rss.dw.com/rdf/rss-en-world", "source": "DW News"},
         {"url": "https://fulltextrssfeed.com/www.aljazeera.com/xml/rss/all.xml", "source": "Global Echo"},
     ],
-    "Local Links": {
-        "isSocialMedia": True,
-        "items": [
-            {"title": "RMN Malaybalay", "link": "https://www.facebook.com/profile.php?id=100063929018518", "source": "Facebook"},
-            {"title": "101.7 XFM Bukidnon", "link": "https://www.facebook.com/101.7XFMBUKIDNON2025", "source": "XFM Bukidnon"},
-            {"title": "Juander Radyo Malaybalay 90.5 FM", "link": "https://www.facebook.com/juanderradyomalaybalay", "source": "Juander Radio"},
-            {"title": "BOMBO RADYO PHILIPPINES", "link": "https://www.facebook.com/bomboradyophilippinesy", "source": "BOMBO RADYO PHILIPPINES"},
-            {"title": "BOMBO RADYO DAVAO", "link": "https://www.facebook.com/BomboRadyoDavao", "source": "BOMBO RADYO DAVAO"},
-        ],
-    },
 }
 
-# Persistent Memory
+FB_PAGES = [
+    "https://www.facebook.com/bomboradyophilippines",
+    "https://www.facebook.com/101.7XFMBUKIDNON2025",
+    "https://www.facebook.com/profile.php?id=100063929018518",
+    "https://www.facebook.com/juanderradyo",
+    "https://www.facebook.com/88.1RBMalaybalay",
+    "https://www.facebook.com/DXDBRadyoBandilyo"
+]
+
 sent_articles = set()
 
-def check_news():
-    print(f"--- Sync Started: {time.strftime('%Y-%m-%d %H:%M:%S')} ---")
-    
-    for category, feeds in ALL_FEEDS.items():
-        # Handle the dictionary structure of "Local Links" (Skip it as it's not RSS)
-        if isinstance(feeds, dict):
-            continue
+# --- 4. FUNCTIONS ---
 
+def disable_close_button():
+    try:
+        hwnd = ctypes.windll.kernel32.GetConsoleWindow()
+        if hwnd != 0:
+            hMenu = ctypes.windll.user32.GetSystemMenu(hwnd, False)
+            if hMenu != 0:
+                ctypes.windll.user32.DeleteMenu(hMenu, 0xF060, 0x0)
+    except Exception as e:
+        logging.error(f"Could not disable close button: {e}")
+
+def get_latest_fb_post(page_url):
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            context = browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+            page = context.new_page()
+            page.goto(page_url, timeout=45000)
+            page.keyboard.press("Escape")
+            page.wait_for_selector('div[role="main"]', timeout=15000)
+            
+            message_locator = page.locator('div[data-ad-preview="message"]').first
+            if message_locator.count() == 0:
+                browser.close()
+                return None, None, None
+
+            newest_text = message_locator.inner_text().strip()
+            post_container = message_locator.locator("xpath=./ancestor::div[contains(@class, 'x1yzt60q')]").first
+            
+            post_link = page_url
+            link_elements = post_container.locator('a[role="link"]').all()
+            for link in link_elements:
+                href = link.get_attribute("href")
+                if href and ("/posts/" in href or "/videos/" in href):
+                    post_link = href.split('?')[0]
+                    break
+
+            img_locator = post_container.locator("img").first
+            img_url = img_locator.get_attribute("src") if img_locator.count() > 0 else None
+
+            browser.close()
+            return newest_text, img_url, post_link
+    except Exception as e:
+        logging.warning(f"FB Scrape Error ({page_url}): {e}")
+        return None, None, None
+
+def check_rss():
+    logging.info("Starting RSS sync...")
+    for category, feeds in ALL_FEEDS.items():
+        if not isinstance(feeds, list): continue
         for feed_info in feeds:
             try:
-                # Use requests with a browser header to fetch the feed
-                # Timeout added to prevent the script from hanging on a slow site
-                response = requests.get(feed_info['url'], headers=HEADERS, timeout=15)
-                feed = feedparser.parse(response.content)
-                
-                if not feed.entries:
-                    continue
-                
-                # Get the most recent entry
+                feed = feedparser.parse(feed_info['url'])
+                if not feed.entries: continue
                 latest = feed.entries[0]
-                article_id = latest.link
-                
-                if article_id not in sent_articles:
-                    print(f"[{category}] Found New: {latest.title}")
-                    
-                    # Clean description (remove HTML tags with regex)
-                    desc = latest.get('summary', 'No description available.')
-                    clean_desc = re.sub('<[^<]+?>', '', desc) 
-                    clean_desc = (clean_desc[:250] + '...') if len(clean_desc) > 250 else clean_desc
-
+                if latest.link not in sent_articles:
+                    desc = latest.get('summary', 'No description.')
+                    clean_desc = (desc[:250] + '...') if len(desc) > 250 else desc
                     payload = {
                         "username": "News Intelligence Bot",
                         "embeds": [{
                             "title": f"🚨 {latest.title}",
                             "url": latest.link,
                             "description": clean_desc,
-                            "color": 1982639, 
+                            "color": 1982639,
                             "fields": [
                                 {"name": "Source", "value": feed_info['source'], "inline": True},
                                 {"name": "Category", "value": category, "inline": True}
                             ],
-                            "footer": {"text": "Bombo Radyo Intel • Automated Live Sync"},
+                            "footer": {"text": "Bombo Radyo Intel • RSS"},
                             "timestamp": time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
                         }]
                     }
-                    
-                    # Post to Discord
-                    post_res = requests.post(WEBHOOK_URL, json=payload)
-                    
-                    # Only add to sent list if Discord accepted it
-                    if post_res.status_code in [200, 204]:
-                        sent_articles.add(article_id)
-                
-                # Respectful delay between individual feed checks
-                time.sleep(0.7)
-                
+                    requests.post(RSS_WEBHOOK_URL, json=payload)
+                    sent_articles.add(latest.link)
             except Exception as e:
-                # Log error but keep the loop running
-                print(f"Skip Error for {feed_info['source']}: {e}")
+                logging.error(f"RSS Error in {category} ({feed_info.get('source')}): {e}")
 
-    # Memory Management: Keep the set from growing forever
-    if len(sent_articles) > 1000:
-        sent_list = list(sent_articles)
-        sent_articles.clear()
-        # Keep the last 500 to prevent duplicates on the next run
-        for item in sent_list[-500:]:
-            sent_articles.add(item)
+def check_facebook():
+    logging.info("Checking Facebook Pages...")
+    for fb_url in FB_PAGES:
+        # Sanitize filename
+        safe_name = "".join([c for c in fb_url.split('/')[-1] if c.isalnum()]) + ".txt"
+        save_path = os.path.join(SAVE_DIR, safe_name)
+        
+        current_text, current_img, current_url = get_latest_fb_post(fb_url)
+        if current_text:
+            last_text = ""
+            if os.path.exists(save_path):
+                with open(save_path, "r", encoding="utf-8") as f:
+                    last_text = f.read().strip()
+            
+            if current_text != last_text:
+                logging.info(f"✨ New FB Post: {fb_url}")
+                payload = {
+                    "embeds": [{
+                        "title": f"📢 FB Update: {fb_url.split('/')[-1]}",
+                        "description": current_text[:1800],
+                        "url": current_url,
+                        "color": 3447003,
+                        "image": {"url": current_img} if current_img else None,
+                        "footer": {"text": f"Scanned at {time.strftime('%H:%M:%S')}"}
+                    }]
+                }
+                requests.post(FB_WEBHOOK_URL, json=payload)
+                with open(save_path, "w", encoding="utf-8") as f:
+                    f.write(current_text)
+        time.sleep(5)
 
-# Main Persistent Loop
+# --- 5. MAIN LOOP ---
 if __name__ == "__main__":
-    print("========================================")
-    print("NEWSBOT: CONTINUOUS SYNC ACTIVE")
-    print("Press Ctrl+C to stop.")
-    print("========================================")
+    disable_close_button()
+    logging.info("Bot Intelligence Active (Background Mode Enabled)")
     
     while True:
         try:
-            check_news()
-            print(f"--- Sync Complete. Next update in 10 minutes. ---")
-            time.sleep(600)  # Wait 10 minutes (600 seconds)
-        except KeyboardInterrupt:
-            print("\nStopping NewsBot...")
-            break
-        except Exception as global_err:
-            print(f"CRITICAL ERROR: {global_err}")
-            print("Restarting sync in 30 seconds...")
-            time.sleep(30)
+            check_rss()
+            check_facebook()
+        except Exception as e:
+            logging.critical(f"Main loop encountered a major error: {e}")
+        
+        if len(sent_articles) > 500:
+            sent_articles.clear()
+        
+        logging.info("Cycle complete. Sleeping for 10 minutes...")
+        time.sleep(600)
